@@ -1,0 +1,118 @@
+# file options
+--exclude Pods
+
+# enabled rules
+--enable andOperator
+--enable anyObjectProtocol
+--enable blankLinesAroundMark
+--enable blankLinesBetweenScopes
+--enable braces
+--enable consecutiveBlankLines
+--enable consecutiveSpaces
+--enable duplicateImports
+--enable elseOnSameLine
+--enable emptyBraces
+--enable extensionAccessControl
+--enable fileHeader
+--enable hoistPatternLet
+--enable initCoderUnavailable
+--enable isEmpty
+--enable leadingDelimiters
+--enable linebreakAtEndOfFile
+--enable linebreaks
+--enable modifierOrder
+--enable preferKeyPath
+--enable redundantBackticks
+--enable redundantBreak
+--enable redundantExtensionACL
+--enable redundantFileprivate
+--enable redundantGet
+--enable redundantInit
+--enable redundantLet
+--enable redundantLetError
+--enable redundantNilInit
+--enable redundantObjc
+--enable redundantParens
+--enable redundantPattern
+--enable redundantRawValues
+--enable redundantReturn
+--enable redundantSelf
+--enable redundantType
+--enable redundantVoidReturnType
+--enable semicolons
+--enable sortedImports
+--enable sortedSwitchCases
+--enable spaceAroundBraces
+--enable spaceAroundBrackets
+--enable spaceAroundComments
+--enable spaceAroundGenerics
+--enable spaceAroundOperators
+--enable spaceAroundParens
+--enable spaceInsideBraces
+--enable spaceInsideBrackets
+--enable spaceInsideComments
+--enable spaceInsideGenerics
+--enable spaceInsideParens
+--enable strongifiedSelf
+--enable strongOutlets
+--enable todos
+--enable trailingClosures
+--enable trailingSpace
+--enable typeSugar
+--enable void
+--enable wrapArguments
+--enable wrapAttributes
+--enable yodaConditions
+
+# disabled, but interesting … we should watch its development
+--disable organizeDeclarations
+
+# disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
+--disable blankLinesAtEndOfScope
+--disable blankLinesAtStartOfScope
+
+# disabled rules
+--disable enumNamespaces # Grund: Caseless enums sind eine Vergewaltigung von Enumerations
+--disable indent # Grund: macht die Übersichtlichkeit an vielen Stellen kaputt
+--disable markTypes # Grund: MARK Comments sollten manuell eingetragen werden, wo sie sinnvoll sind
+--disable numberFormatting # Grund: Im Banking-Umfeld gibt es BLZ etc. die eine eigene Formatierung haben
+--disable organizeDeclarations # Grund: Unsere Properties & Methods werden oft semantisch sortiert, was nur manuell möglich ist
+--disable trailingCommas # Grund: ein Komma nach dem letzten Element einer Collection ist unnötig
+--disable unusedArguments # Grund: wer will so was? func foo(_: Int) … der Parameter wird schon seinen Grund haben, sonst könnte man ihn gleich löschen.
+--disable wrap # Grund: Das ist Gefühlssache, wann man wrappen will
+--disable wrapEnumCases # Grund: Für ein enum, das nur ein paar cases auflistet, ist die Schreibweise auf einer Zeile auch okay
+--disable wrapMultilineStatementBraces # Grund: wir sind doch keine Objective-C Entwickler
+--disable wrapSwitchCases # Grund: Wenn Switch Cases die gleiche Aufgabe haben, dann ist es übersichtlicher, wenn diese auf einer Zeile stehen
+
+# format options
+--allman false
+--elseposition same-line
+--exponentcase lowercase
+--extensionacl on-extension
+--funcattributes preserve # Hier gibt es keine einheitliche Lösung - z.B. @available mit Grund sollte in 'prev-line', aber @ObservedObject in 'same-line'
+--guardelse auto
+--header "\n📄 {file}\n👨🏼‍💻 Author: Benno Kress\n🗓️ Created: {created}\n"
+--importgrouping alphabetized
+--indent 4
+--indentcase false
+--linebreaks lf
+--maxwidth none
+--modifierorder
+--nospaceoperators .
+--operatorfunc spaced
+--patternlet hoist
+--self init-only
+--selfrequired # Fehler bei der Option --self hier eintragen, wird dann ignoriert
+--semicolons inline
+--shortoptionals always
+--specifierorder optional,required,convenience,override,indirect,private,fileprivate,internal,public,open,private(set),fileprivate(set),internal(set),public(set),final,dynamic,lazy,static,class,weak,unowned,mutating,nonmutating,prefix,postfix
+--smarttabs enabled
+--tabwidth 4
+--trimwhitespace always
+--typeattributes prev-line
+--varattributes preserve # Hier gibt es keine einheitliche Lösung - z.B. @available mit Grund sollte in 'prev-line', aber @ObservedObject in 'same-line'
+--voidtype void
+--wraparguments before-first
+--wrapcollections before-first
+--wrapparameters preserve
+--xcodeindentation disabled
