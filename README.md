@@ -64,11 +64,8 @@ logW("Or create your own Category ...", category: .custom("Announcement"))
 ### Log Message Concatenation
 
 ```swift
-logV("Got an API Response ...", category: .service)
-logI("Saving Token from API: \(token)", category: .storage)
-logV("User tapped Continue Button", category: .user)
-logE("Username and Password did not match", category: .manager)
-logW("Or create your own Category ...", category: .custom("Announcement"))
+logV(service, "Got an API Response ...", category: .service)
+logW(screen, element, "Username too long", joinedBy: " → ", category: .manager)
 ```
 
 <img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="https://www.dropbox.com/s/0vays657yh7p0to/message%20concatenation.png?raw=1" />
@@ -82,7 +79,7 @@ logE(error, category: .service)
 logE(exception, category: .service)
 ```
 
-<img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="raw=1" />
+<img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="https://www.dropbox.com/s/wloxrc2okk120l1/error%20exception.png?raw=1" />
 
 ## Integration
 
