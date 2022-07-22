@@ -132,11 +132,11 @@ private final class PrettyLog {
     }
 
     func log(error: Error, category: LogCategory) {
-        print("\(prefix(level: .error, category: category)) \(error.localizedDescription) (\(error)")
+        print("\(prefix(level: .error, category: category)) \(error.localizedDescription) (\(error))")
     }
 
     func log(exception: NSException, category: LogCategory) {
-        print("\(prefix(level: .error, category: category)) \(exception): \(exception.description)")
+        print("\(prefix(level: .error, category: category)) \(exception.description)")
     }
 
     private var currentTimestamp: String {
