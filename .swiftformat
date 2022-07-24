@@ -1,11 +1,15 @@
-# file options
+# File options
+
 --exclude Pods
 
-# enabled rules
+# Rules
+
+## Enabled
 --enable andOperator
 --enable anyObjectProtocol
---enable blankLinesAroundMark
+--enable assertionFailures
 --enable blankLinesBetweenScopes
+--enable blockComments
 --enable braces
 --enable consecutiveBlankLines
 --enable consecutiveSpaces
@@ -21,9 +25,11 @@
 --enable linebreakAtEndOfFile
 --enable linebreaks
 --enable modifierOrder
+--enable preferDouble
 --enable preferKeyPath
 --enable redundantBackticks
 --enable redundantBreak
+--enable redundantClosure
 --enable redundantExtensionACL
 --enable redundantFileprivate
 --enable redundantGet
@@ -60,59 +66,62 @@
 --enable trailingSpace
 --enable typeSugar
 --enable void
---enable wrapArguments
---enable wrapAttributes
+--enable wrapEnumCases
 --enable yodaConditions
 
-# disabled, but interesting … we should watch its development
---disable organizeDeclarations
+## Disabled
+--disable acronyms                            # -> More often than not this breaks API and Backend Call Implementations
+--disable blankLinesAroundMark                # -> Normally correct, but not for Comments after the MARK
+--disable blankLinesAtEndOfScope              # -> disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
+--disable blankLinesAtStartOfScope            # -> disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
+--disable blankLinesBetweenImports            # -> Normally correct, but I write the @testable import first, then a blank line and then the alphabetized list of imports
+--disable enumNamespaces                      # -> Caseless enums should be avoided in my opinion
+--disable indent                              # -> This destroys clarity in too many cases
+--disable markTypes                           # -> MARK Comments are not always preferential
+--disable numberFormatting                    # -> When working on banking related projects we have different formatting for things like bank codes than we have on normal numbers. Those can't be automatically detected.
+--disable organizeDeclarations                # -> Properties & Methods sometimes have more clarity when ordered semantically
+--disable sortDeclarations                    # -> Too much overhead having to write // swiftformat:sort in files
+--disable trailingCommas                      # -> A comma after the last element of a collection is never necessary
+--disable unusedArguments                     # -> This destroys some Protocol implementations (applicationDidLaunch etc.)
+--disable wrap                                # -> I have a widescreen monitor, I don't need wrapping
+--disable wrapArguments                       # -> Normally I don't wrap arguments and if I do, it is decided on a case-by-case basis
+--disable wrapAttributes                      # -> Wanted behavior: prev-line for func and computed properties, same-line for normal properties and types --> https://github.com/nicklockwood/SwiftFormat/issues/1232
+--disable wrapConditionalBodies               # -> Please don't! 1 line guard statements should always be written in one line in my opinion
+--disable wrapSwitchCases                     # -> Sometimes having all cases in one line is okay!
+--disable wrapMultilineStatementBraces        # -> Objective-C is dying for many reasons ... and this is one of them!
 
-# disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
---disable blankLinesAtEndOfScope
---disable blankLinesAtStartOfScope
+# Format options
 
-# disabled rules
---disable enumNamespaces # Grund: Caseless enums sind eine Vergewaltigung von Enumerations
---disable indent # Grund: macht die Übersichtlichkeit an vielen Stellen kaputt
---disable markTypes # Grund: MARK Comments sollten manuell eingetragen werden, wo sie sinnvoll sind
---disable numberFormatting # Grund: Im Banking-Umfeld gibt es BLZ etc. die eine eigene Formatierung haben
---disable organizeDeclarations # Grund: Unsere Properties & Methods werden oft semantisch sortiert, was nur manuell möglich ist
---disable trailingCommas # Grund: ein Komma nach dem letzten Element einer Collection ist unnötig
---disable unusedArguments # Grund: wer will so was? func foo(_: Int) … der Parameter wird schon seinen Grund haben, sonst könnte man ihn gleich löschen.
---disable wrap # Grund: Das ist Gefühlssache, wann man wrappen will
---disable wrapEnumCases # Grund: Für ein enum, das nur ein paar cases auflistet, ist die Schreibweise auf einer Zeile auch okay
---disable wrapMultilineStatementBraces # Grund: wir sind doch keine Objective-C Entwickler
---disable wrapSwitchCases # Grund: Wenn Switch Cases die gleiche Aufgabe haben, dann ist es übersichtlicher, wenn diese auf einer Zeile stehen
-
-# format options
 --allman false
+--closurevoid remove
 --elseposition same-line
---exponentcase lowercase
+--emptybraces spaced
 --extensionacl on-extension
---funcattributes preserve # Hier gibt es keine einheitliche Lösung - z.B. @available mit Grund sollte in 'prev-line', aber @ObservedObject in 'same-line'
---guardelse auto
+--guardelse same-line
 --header "\n📄 {file}\n👨🏼‍💻 Author: Benno Kress\n🗓️ Created: {created}\n"
---importgrouping alphabetized
+--ifdef indent
+--importgrouping alpha
 --indent 4
 --indentcase false
 --linebreaks lf
---maxwidth none
---modifierorder
---nospaceoperators .
+--modifierorder optional,required,convenience,override,indirect,private,fileprivate,internal,public,open,private(set),fileprivate(set),internal(set),public(set),final,dynamic,lazy,static,class,weak,unowned,mutating,nonmutating,prefix,postfix
 --operatorfunc spaced
 --patternlet hoist
+--ranges spaced
+--redundanttype inferred
 --self init-only
---selfrequired # Fehler bei der Option --self hier eintragen, wird dann ignoriert
 --semicolons inline
 --shortoptionals always
---specifierorder optional,required,convenience,override,indirect,private,fileprivate,internal,public,open,private(set),fileprivate(set),internal(set),public(set),final,dynamic,lazy,static,class,weak,unowned,mutating,nonmutating,prefix,postfix
 --smarttabs enabled
+--stripunusedargs always
+--swiftversion 5.2.4
 --tabwidth 4
 --trimwhitespace always
---typeattributes prev-line
---varattributes preserve # Hier gibt es keine einheitliche Lösung - z.B. @available mit Grund sollte in 'prev-line', aber @ObservedObject in 'same-line'
 --voidtype void
---wraparguments before-first
---wrapcollections before-first
---wrapparameters preserve
 --xcodeindentation disabled
+--yodaswap always
+
+# Wait for wrapAttributes to support differentiation of stored and computed properties --> https://github.com/nicklockwood/SwiftFormat/issues/1232
+# --funcattributes prev-line
+# --typeattributes prev-line
+# --varattributes same-line # but not for computed properties

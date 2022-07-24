@@ -23,7 +23,7 @@ public func logV(_ messages: String?..., joinedBy separator: String = " - ", cat
 ///     - messages: The messages to log
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.     
+/// - Attention: No log will be created, if `messages` is empty or `nil`.
 public func logD(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logD(messages, joinedBy: separator, category: category)
 }
@@ -33,7 +33,7 @@ public func logD(_ messages: String?..., joinedBy separator: String = " - ", cat
 ///     - messages: The messages to log
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.     
+/// - Attention: No log will be created, if `messages` is empty or `nil`.
 public func logI(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logI(messages, joinedBy: separator, category: category)
 }
@@ -43,7 +43,7 @@ public func logI(_ messages: String?..., joinedBy separator: String = " - ", cat
 ///     - messages: The messages to log
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.     
+/// - Attention: No log will be created, if `messages` is empty or `nil`.
 public func logW(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logW(messages, joinedBy: separator, category: category)
 }
@@ -53,7 +53,7 @@ public func logW(_ messages: String?..., joinedBy separator: String = " - ", cat
 ///     - messages: The messages to log
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.     
+/// - Attention: No log will be created, if `messages` is empty or `nil`.
 public func logE(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logE(messages, joinedBy: separator, category: category)
 }
@@ -63,7 +63,7 @@ public func logE(_ messages: String?..., joinedBy separator: String = " - ", cat
 ///     - messages: The messages to log
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.     
+/// - Attention: No log will be created, if `messages` is empty or `nil`.
 public func logE(_ error: Error?, category: LogCategory = .uncategorized) {
     PrettyLogProxy.logE(error, category: category)
 }
@@ -73,7 +73,7 @@ public func logE(_ error: Error?, category: LogCategory = .uncategorized) {
 ///     - messages: The messages to log
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.     
+/// - Attention: No log will be created, if `messages` is empty or `nil`.
 public func logE(_ exception: NSException?, category: LogCategory = .uncategorized) {
     PrettyLogProxy.logE(exception, category: category)
 }
@@ -82,43 +82,42 @@ public func logE(_ exception: NSException?, category: LogCategory = .uncategoriz
 // -> Variadic Parameters can't be passed on to another method
 
 public struct PrettyLogProxy {
-    
+
     public static func logV(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
         guard let message = String.joined(from: messages, using: separator) else { return }
         PrettyLog.shared.log(.verbose, message: message, category: category)
     }
-    
+
     public static func logD(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
         guard let message = String.joined(from: messages, using: separator) else { return }
         PrettyLog.shared.log(.debug, message: message, category: category)
     }
-    
+
     public static func logI(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
         guard let message = String.joined(from: messages, using: separator) else { return }
         PrettyLog.shared.log(.info, message: message, category: category)
     }
-    
+
     public static func logW(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
         guard let message = String.joined(from: messages, using: separator) else { return }
         PrettyLog.shared.log(.warning, message: message, category: category)
     }
-    
+
     public static func logE(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
         guard let message = String.joined(from: messages, using: separator) else { return }
         PrettyLog.shared.log(.error, message: message, category: category)
     }
-    
+
     public static func logE(_ error: Error?, category: LogCategory = .uncategorized) {
         guard let error = error else { return }
         PrettyLog.shared.log(error: error, category: category)
     }
-    
+
     public static func logE(_ exception: NSException?, category: LogCategory = .uncategorized) {
         guard let exception = exception else { return }
         PrettyLog.shared.log(exception: exception, category: category)
     }
 
-    
 }
 
 // MARK: - Private Logger Implementation
