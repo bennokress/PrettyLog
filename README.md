@@ -81,6 +81,19 @@ logE(exception, category: .service)
 
 <img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="https://www.dropbox.com/s/nikg8h1yvkpvd6t/error%20exception.png?raw=1" />
 
+## Custom Log Categories
+
+Included in PrettyLog are the categories that I use routinely. Those may differ from what is useful in your project, so I made it easy for you to define your own categories. Simply extend `LogCategory` like this:
+
+```swift
+extension LogCategory {
+
+    /// This custom category can be used like all the predefined ones: logV("Running Unit Tests ...", category: .test)
+    static var test: LogCategory { .custom("Test") }
+
+}
+```
+
 ## Integration
 
 When using PrettyLog you have basically two options:
