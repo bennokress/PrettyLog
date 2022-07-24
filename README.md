@@ -202,7 +202,7 @@ public func logE(_ exception: NSException?, category: LogCategory = .uncategoriz
 
 ## Author
 
-👤 **Benno Kress**
+👨🏻‍💻 **Benno Kress**
 
 -   Website: [bennokress.de](https://bennokress.de)
 -   Twitter: [@bennokress](https://twitter.com/bennokress)
