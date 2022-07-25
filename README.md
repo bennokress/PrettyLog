@@ -124,7 +124,6 @@ Another option is to create a Swift file somewhere in your app that serves as a 
 //
 // 📄 PrettyLog.swift
 // 👨🏼‍💻 Author: Benno Kress
-// 🗓️ Created: 22.07.22
 //
 
 import Foundation

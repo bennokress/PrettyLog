@@ -98,7 +98,7 @@
 --emptybraces spaced
 --extensionacl on-extension
 --guardelse same-line
---header "\n📄 {file}\n👨🏼‍💻 Author: Benno Kress\n🗓️ Created: {created}\n"
+--header "\n📄 {file}\n👨🏼‍💻 Author: Benno Kress\n"
 --ifdef indent
 --importgrouping alpha
 --indent 4

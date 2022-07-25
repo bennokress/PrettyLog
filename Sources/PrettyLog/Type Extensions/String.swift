@@ -1,7 +1,6 @@
 //
 // 📄 String.swift
 // 👨🏼‍💻 Author: Benno Kress
-// 🗓️ Created: 22.07.22
 //
 
 import Foundation
@@ -10,13 +9,21 @@ extension String {
 
     /// Joins all the given Strings with the given separator
     /// - Parameters:
+    ///   - separator: The separator to use in between the given Strings.
+    ///   - strings: The Strings to join together.
+    /// - Returns: The joined String
+    static func joined(with separator: String = "", combining strings: String?...) -> String {
+        joined(from: strings, using: separator) ?? ""
+    }
+
+    /// Joins all the given Strings with the given separator
+    /// - Parameters:
     ///   - array: The Strings to join together.
     ///   - separator: The separator to use in between the given Strings.
     /// - Returns: The joined String or `nil` if no Strings were given.
     static func joined(from array: [String?], using separator: String) -> String? {
         let stringComponents = array.compactMap { $0 }
-        guard !stringComponents.isEmpty else { return nil }
-        return stringComponents.joined(separator: separator)
+        return stringComponents.joined(separator: separator).replacedWithNilIfEmpty
     }
 
     /// Removes all characters from the String exceeding the desired length and pads the String from  the beginning using spaces, if the String is shorter than the desired length.
@@ -34,6 +41,11 @@ extension String {
             editedString = padding + self
         }
         return editedString
+    }
+
+    /// Returns `nil` if the String is empty
+    var replacedWithNilIfEmpty: String? {
+        isEmpty ? nil : self
     }
 
 }

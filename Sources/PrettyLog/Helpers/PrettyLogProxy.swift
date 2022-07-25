@@ -1,7 +1,6 @@
 //
 // 📄 PrettyLogProxy.swift
 // 👨🏼‍💻 Author: Benno Kress
-// 🗓️ Created: 25.07.22
 //
 
 import Foundation
@@ -107,8 +106,8 @@ public struct PrettyLogProxy {
     ///     - separator: The separator between messages (defaults to `-`)
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `messages` is empty or `nil`.
-    public static func logV(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-        log(messages, joinedBy: separator, as: .verbose, category: category)
+    public static func logV(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
+        log(messages, joinedBy: separator, as: .verbose, category: category, to: targets)
     }
 
     /// Log messages in the provided order with DEBUG level
@@ -117,8 +116,8 @@ public struct PrettyLogProxy {
     ///     - separator: The separator between messages (defaults to `-`)
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `messages` is empty or `nil`.
-    public static func logD(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-        log(messages, joinedBy: separator, as: .debug, category: category)
+    public static func logD(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
+        log(messages, joinedBy: separator, as: .debug, category: category, to: targets)
     }
 
     /// Log messages in the provided order with INFO level
@@ -127,8 +126,8 @@ public struct PrettyLogProxy {
     ///     - separator: The separator between messages (defaults to `-`)
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `messages` is empty or `nil`.
-    public static func logI(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-        log(messages, joinedBy: separator, as: .info, category: category)
+    public static func logI(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
+        log(messages, joinedBy: separator, as: .info, category: category, to: targets)
     }
 
     /// Log messages in the provided order with WARNING level
@@ -137,8 +136,8 @@ public struct PrettyLogProxy {
     ///     - separator: The separator between messages (defaults to `-`)
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `messages` is empty or `nil`.
-    public static func logW(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-        log(messages, joinedBy: separator, as: .warning, category: category)
+    public static func logW(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
+        log(messages, joinedBy: separator, as: .warning, category: category, to: targets)
     }
 
     /// Log messages in the provided order with ERROR level
@@ -147,8 +146,8 @@ public struct PrettyLogProxy {
     ///     - separator: The separator between messages (defaults to `-`)
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `messages` is empty or `nil`.
-    public static func logE(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-        log(messages, joinedBy: separator, as: .error, category: category)
+    public static func logE(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
+        log(messages, joinedBy: separator, as: .error, category: category, to: targets)
     }
 
     /// Log an `Error` with ERROR level.
@@ -157,10 +156,10 @@ public struct PrettyLogProxy {
     ///     - level: The level to log with (defaults to `.error`)
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `error` is `nil`.
-    public static func log(_ error: Error?, as level: LogLevel = .error, category: LogCategory = .uncategorized) {
+    public static func log(_ error: Error?, as level: LogLevel = .error, category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
         guard let error = error else { return }
         let statement = "\(error.localizedDescription) (\(error))"
-        log(level, statement: statement, category: category)
+        log(level, statement: statement, category: category, to: targets)
     }
 
     /// Log a `NSException` with ERROR level.
@@ -169,10 +168,10 @@ public struct PrettyLogProxy {
     ///     - level: The level to log with (defaults to `.error`)
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `exception` is `nil`.
-    public static func log(_ exception: NSException?, as level: LogLevel = .error, category: LogCategory = .uncategorized) {
+    public static func log(_ exception: NSException?, as level: LogLevel = .error, category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
         guard let exception = exception else { return }
         let statement = exception.description
-        log(level, statement: statement, category: category)
+        log(level, statement: statement, category: category, to: targets)
     }
 
     /// Log messages in the provided order with any level.
@@ -182,9 +181,9 @@ public struct PrettyLogProxy {
     ///     - level: The level to log with
     ///     - category: The category of the log message (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `messages` is empty or `nil`.
-    public static func log(_ messages: [String?], joinedBy separator: String = " - ", as level: LogLevel, category: LogCategory = .uncategorized) {
+    public static func log(_ messages: [String?], joinedBy separator: String = " - ", as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
         guard let statement = String.joined(from: messages, using: separator) else { return }
-        log(level, statement: statement, category: category)
+        log(level, statement: statement, category: category, to: targets)
     }
 
     // MARK: - Private Relay to the Log Designer
@@ -195,9 +194,10 @@ public struct PrettyLogProxy {
     ///     - statement: The statement to log
     ///     - category: The category of the log message
     /// - Attention: No log will be created, if `messages` is empty or `nil`.
-    private static func log(_ level: LogLevel, statement: String, category: LogCategory) {
-        let designer = LogDesigner()
-        designer.createLog(level, message: statement, category: category)
+    private static func log(_ level: LogLevel, statement: String, category: LogCategory, to targets: [LogTarget]) {
+        for target in targets {
+            target.log(level, message: statement, category: category)
+        }
     }
 
 }

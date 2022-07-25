@@ -1,7 +1,6 @@
 //
 // 📄 LogCategory.swift
 // 👨🏼‍💻 Author: Benno Kress
-// 🗓️ Created: 22.07.22
 //
 
 import Foundation
@@ -34,13 +33,12 @@ public enum LogCategory {
 
     // MARK: - Properties & Methods
 
-    /// The name of the LogCategory with a fixed width String and right aligned to make it look nice in the Console Output.
-    var fixedWidth: String { name.truncateOrPad(to: 20) }
-
-    // MARK: Private Helpers
+    /// The name of the Log Category as a fixed width String and right aligned to make it look nice in the log statement.
+    /// - Parameter fixedLength: The desired fixed length of the output.
+    public func truncatedOrPadded(to fixedLength: Int) -> String { name.truncateOrPad(to: fixedLength) }
 
     /// The name of the LogCategory that will be used in log statements.
-    private var name: String {
+    public var name: String {
         switch self {
         case .appState: return "App State"
         case .debug: return "Debug"
