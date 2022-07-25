@@ -19,7 +19,7 @@ public struct ConsoleLog: LogTarget {
     private var currentTimestamp: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss.SSS"
-        return formatter.string(from: Date.now)
+        return formatter.string(from: Date())
     }
 
     private func prefix(level: LogLevel, category: LogCategory) -> String {

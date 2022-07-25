@@ -8,7 +8,11 @@ private let prettyLog = "PrettyLog"
 let package = Package(
     name: prettyLog,
     platforms: [
-        .iOS(.v15)
+        .iOS(.v11),
+        .macCatalyst(.v13),
+        .macOS(.v10_13),
+        .tvOS(.v11),
+        .watchOS(.v4)
     ],
     products: [
         .library(name: prettyLog, targets: [prettyLog])
