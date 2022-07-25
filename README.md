@@ -1,5 +1,8 @@
 <h1 align="center">Welcome to PrettyLog 👋</h1>
 <p align="center">
+  <a href="https://swiftpackageindex.com/bennokress/PrettyLog" target="_blank">
+    <img alt="Swift Package Index" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fbennokress%2FPrettyLog%2Fbadge%3Ftype%3Dswift-versions&style=for-the-badge" />
+  </a>
   <a href="https://github.com/bennokress/PrettyLog/blob/main/LICENSE" target="_blank">
     <img alt="License" src="https://img.shields.io/github/license/bennokress/PrettyLog?style=for-the-badge" />
   </a>
@@ -127,77 +130,84 @@ Another option is to create a Swift file somewhere in your app that serves as a 
 import Foundation
 import PrettyLog
 
-// MARK: - Global aliases
-
-/// Log strings in order with VERBOSE level
+/// Log messages in the provided order with VERBOSE level
 /// - Parameters:
-///     - messages: The messages to log
+///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or `nil`.
-public func logV(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logV(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logV(messages, joinedBy: separator, category: category)
 }
 
-/// Log strings in order with DEBUG level
+/// Log messages in the provided order with DEBUG level
 /// - Parameters:
-///     - messages: The messages to log
+///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or `nil`.
-public func logD(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logD(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logD(messages, joinedBy: separator, category: category)
 }
 
-/// Log strings in order with INFO level
+/// Log messages in the provided order with INFO level
 /// - Parameters:
-///     - messages: The messages to log
+///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or `nil`.
-public func logI(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logI(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logI(messages, joinedBy: separator, category: category)
 }
 
-/// Log strings in order with WARNING level
+/// Log messages in the provided order with WARNING level
 /// - Parameters:
-///     - messages: The messages to log
+///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or `nil`.
-public func logW(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logW(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logW(messages, joinedBy: separator, category: category)
 }
 
-/// Log strings in order with ERROR level
+/// Log messages in the provided order with ERROR level
 /// - Parameters:
-///     - messages: The messages to log
+///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - separator: The separator between messages (defaults to `-`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or `nil`.
-public func logE(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logE(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logE(messages, joinedBy: separator, category: category)
 }
 
-/// Log with ERROR level
+/// Log an `Error` with ERROR level.
 /// - Parameters:
-///     - messages: The messages to log
-///     - separator: The separator between messages (defaults to `-`)
+///     - error: The error to log
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.
-public func logE(_ error: Error?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logE(error, category: category)
+/// - Attention: No log will be created, if `error` is `nil`.
+func log(_ error: Error?, category: LogCategory = .uncategorized) {
+    PrettyLogProxy.log(error, category: category)
 }
 
-/// Log with ERROR level
+/// Log a `NSException` with ERROR level.
 /// - Parameters:
-///     - messages: The messages to log
-///     - separator: The separator between messages (defaults to `-`)
+///     - exception: The exception to log
 ///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or `nil`.
-public func logE(_ exception: NSException?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logE(exception, category: category)
+/// - Attention: No log will be created, if `exception` is `nil`.
+func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
+    PrettyLogProxy.log(exception, category: category)
 }
+
+// TODO: Add custom global log methods if needed -> for example: if you have custom LogLevel and LogCategory `.todo`, you could define `logT for that.
+
+// /// Log messages in the provided order with TODO level
+// /// - Parameters:
+// ///     - messages: One or more strings and string-convertible objects to include in the log statement
+// ///     - separator: The separator between messages (defaults to `-`)
+// /// - Attention: No log will be created, if `messages` is empty or `nil`.
+// public func logT(_ messages: String?..., joinedBy separator: String = " - ") {
+//     PrettyLogProxy.log(messages, joinedBy: separator, as: .todo, category: .todo)
+// }
 ```
 
 ## Author

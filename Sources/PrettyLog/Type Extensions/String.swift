@@ -8,6 +8,11 @@ import Foundation
 
 extension String {
 
+    /// Joins all the given Strings with the given separator
+    /// - Parameters:
+    ///   - array: The Strings to join together.
+    ///   - separator: The separator to use in between the given Strings.
+    /// - Returns: The joined String or `nil` if no Strings were given.
     static func joined(from array: [String?], using separator: String) -> String? {
         let stringComponents = array.compactMap { $0 }
         guard !stringComponents.isEmpty else { return nil }

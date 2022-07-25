@@ -6,24 +6,29 @@
 
 import Foundation
 
-enum LogLevel: UInt32 {
+/// The Log Level will show up visually in each log statement represented as an emoji. All the default levels use colored circles, but custom Log Levels may use other emoji.
+///
+/// Custom Log Levels can be defined as an extension on `LogLevel`:
+///
+///     extension LogLevel {
+///
+///         /// This custom level can be used like all the predefined ones, has to be defined though: logI("Running Unit Tests ...", category: .test)
+///         static var important: LogLevel { .custom(emoji: "🟣") }
+///
+///     }
+///
+/// - Attention: The level should always be represented by emoji in order to keep the visual design of the log statements consistent, although other characters could be defined for custom levels.
+public enum LogLevel {
 
-    case verbose = 20
-    case debug = 30
-    case info = 40
-    case warning = 50
-    case error = 60
+    case verbose
+    case debug
+    case info
+    case warning
+    case error
 
-    var description: String {
-        switch self {
-        case .verbose: return "VERBOSE"
-        case .debug: return "DEBUG"
-        case .info: return "INFO"
-        case .warning: return "WARNING"
-        case .error: return "ERROR"
-        }
-    }
+    case custom(emoji: Character)
 
+    /// The emoji is used as a quickly glanceable representation of the Log Level in our log statements.
     var emoji: String {
         switch self {
         case .verbose: return "🔵"
@@ -31,6 +36,7 @@ enum LogLevel: UInt32 {
         case .info: return "🟢"
         case .warning: return "🟡"
         case .error: return "🔴"
+        case let .custom(emoji): return "\(emoji)"
         }
     }
 

@@ -6,6 +6,18 @@
 
 import Foundation
 
+/// The Log Category will show up as a title of each log statement.
+///
+/// Custom Log Categories can be defined as an extension on `LogCategory`:
+///
+///     extension LogCategory {
+///
+///         /// This custom category can be used like all the predefined ones: logV("Running Unit Tests ...", category: .test)
+///         static var test: LogCategory { .custom("Test") }
+///
+///     }
+///
+/// - Attention: The name of the category will always be truncated to 20 characters in order to keep the visual design of the log statements consistent.
 public enum LogCategory {
 
     case appState
@@ -22,7 +34,13 @@ public enum LogCategory {
 
     // MARK: - Properties & Methods
 
-    internal var name: String {
+    /// The name of the LogCategory with a fixed width String and right aligned to make it look nice in the Console Output.
+    var fixedWidth: String { name.truncateOrPad(to: 20) }
+
+    // MARK: Private Helpers
+
+    /// The name of the LogCategory that will be used in log statements.
+    private var name: String {
         switch self {
         case .appState: return "App State"
         case .debug: return "Debug"
@@ -36,8 +54,5 @@ public enum LogCategory {
         case let .custom(name): return name
         }
     }
-
-    /// The Category with a fixed width String and right aligned to make it look nice in the Console Output.
-    internal var fixedWidth: String { name.truncateOrPad(to: 20) }
 
 }
