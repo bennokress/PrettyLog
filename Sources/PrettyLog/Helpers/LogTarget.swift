@@ -5,9 +5,13 @@
 
 import Foundation
 
+/// The Log Target is a destination for log statements and can be local or remote.
 public protocol LogTarget {
 
-    /// Create the log statement with a consistent design.
+    /// Creates the log statement with a consistent design and sends it to its destination.
+    ///
+    /// This method will only be called by `PrettyLog` if the `logPriorityRange` requirements are met.
+    ///
     /// - Parameters:
     ///   - level: The log level can be used to visually distinguish between severities of the log statements and to filter what to log for this Log Target.
     ///   - message: The message is the main content of the log statement.
@@ -27,11 +31,11 @@ public extension LogTarget {
 }
 
 extension LogTarget {
-    
+
     /// Log the desired statement with the design defined in `createLog` if the Log Level allows it according to its `logPriorityRange`.
     func log(_ level: LogLevel, message: String, category: LogCategory) {
         guard logPriorityRange.contains(level) else { return }
         createLog(level, message: message, category: category)
     }
-    
+
 }
