@@ -19,5 +19,8 @@ let package = Package(
     ],
     targets: [
         .target(name: prettyLog, dependencies: [])
+    ],
+    swiftLanguageVersions: [
+        .v5
     ]
 )
