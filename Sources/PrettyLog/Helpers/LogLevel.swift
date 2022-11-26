@@ -19,8 +19,8 @@ import Foundation
 /// - Attention: The level should always be represented by emoji in order to keep the visual design of the log statements consistent, although other characters could be defined for custom levels.
 public enum LogLevel {
 
-    case verbose
     case debug
+    case verbose
     case info
     case warning
     case error
@@ -32,8 +32,8 @@ public enum LogLevel {
     /// The emoji can be used as a quickly glanceable representation of the Log Level in log statements.
     public var emoji: String {
         switch self {
-        case .verbose: return "🔵"
         case .debug: return "🟤"
+        case .verbose: return "🔵"
         case .info: return "🟢"
         case .warning: return "🟡"
         case .error: return "🔴"
@@ -45,8 +45,8 @@ public enum LogLevel {
     /// - Attention: Multiple Log Levels will be comparable by priority although they can have the same priority!
     public var priority: Int {
         switch self {
-        case .verbose: return 100
-        case .debug: return 300
+        case .debug: return 100
+        case .verbose: return 300
         case .info: return 500
         case .warning: return 700
         case .error: return 900
