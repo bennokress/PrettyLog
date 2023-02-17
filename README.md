@@ -78,8 +78,8 @@ logW(screen, element, "Username too long", joinedBy: " → ", category: .manager
 ```swift
 let error = NetworkError.notFound
 let exception = NSException(name: .portTimeoutException, reason: nil)
-logE(error, category: .service)
-logE(exception, category: .service)
+log(error, category: .service)
+log(exception, category: .service)
 ```
 
 <img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="https://www.dropbox.com/s/nikg8h1yvkpvd6t/error%20exception.png?raw=1" />
@@ -270,6 +270,19 @@ func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(exception, category: category)
 }
 
+/// Log with ERROR level and crash the app.
+/// - Parameters:
+///     - messages: One or more strings and string-convertible objects to include in the log statement
+///     - separator: The separator between messages (defaults to `-`)
+///     - category: The category of the log message
+/// - Attention: No log will be created, if `messages` is empty or `nil`.
+func fatalLog(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) -> Never {
+    PrettyLogProxy.logE(messages, joinedBy: separator, category: category)
+    let messageComponents = messages.compactMap { $0 }
+    let statement = messageComponents.joined(separator: separator)
+    fatalError(statement)
+}
+
 // TODO: Add custom global log methods if needed -> for example: if you have custom LogLevel and LogCategory `.todo`, you could define `logT` for that.
 
 // /// Log messages in the provided order with TODO level
@@ -287,7 +300,7 @@ func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
 👨🏻‍💻 **Benno Kress**
 
 -   Website: [bennokress.de](https://bennokress.de)
--   Twitter: [@bennokress](https://twitter.com/bennokress)
+-   Mastodon: [@benno@iosdev.space](https://iosdev.space/@benno)
 
 ## 🤝 Contributing
 
