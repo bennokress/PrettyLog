@@ -89,7 +89,8 @@ public extension Optional where Wrapped == ClosedRange<LogLevel> {
     ///
     /// - Parameter element: The element to check for containment.
     /// - Attention: This will always return `false` if the range is `nil`.
-    @inlinable func contains(_ element: LogLevel) -> Bool {
+    @inlinable
+    func contains(_ element: LogLevel) -> Bool {
         guard let range = self else { return false }
         return range.contains(element)
     }

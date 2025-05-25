@@ -1,9 +1,126 @@
-.DS_Store
-/.build
-/Packages
-/*.xcodeproj
+############################################################
+# Custom to this Project
+############################################################
+
+# Individualization
+#############################
+SecureGo/Resources/Active
+
+# KFTheme Script
+#############################
+Utils/Illustration\ Theming/KFTheme\ Input/Input/*.svg
+Utils/Illustration\ Theming/KFTheme\ Input/Output
+Utils/Illustration\ Theming/KFTheme\ Input/Templates
+
+# Post Build Action (Promon)
+#############################
+*.log
+
+#LicensePlist
+#############################
+Build\ Phase\ Output
+
+# Fastlane
+#############################
+fastlane/Preview.html                   # Utils/Fastlane/Preview.html
+fastlane/README.md                      # Utils/Fastlane/README.md
+fastlane/reports                        # Utils/Fastlane/reports
+fastlane/report.xml                     # Utils/Fastlane/report.xml
+fastlane/screenshots/**/*.png           # Utils/Fastlane/screenshots/**/*.png
+fastlane/screenshots/screenshots.html   # Utils/Fastlane/screenshots/screenshots.html
+fastlane/test_output                    # Utils/Fastlane/test_output
+
+############################################################
+# Files from Apps
+############################################################
+
+# Xcode
+#############################
+*.xcworkspacedata
 xcuserdata/
+build/
 DerivedData/
-.swiftpm/config/registries.json
-.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
-.netrc
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Instruments
+#############################
+/DCIntrospect
+
+# AppCode
+#############################
+/.idea
+.idea/
+
+# Nova
+#############################
+.nova/
+
+# VS Code
+#############################
+.vscode/
+.cursor/
+.cursorrules
+
+############################################################
+# Files from Tools
+############################################################
+
+# SPM
+#############################
+Packages/
+Package.pins
+Package.resolved
+.build/
+
+# Swift
+#############################
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# Git
+#############################
+*.orig
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*_BACKUP_*.txt
+*_BASE_*.txt
+*_LOCAL_*.txt
+*_REMOTE_*.txt
+
+############################################################
+# System Files
+############################################################
+
+# macOS
+#############################
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

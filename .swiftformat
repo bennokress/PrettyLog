@@ -1,16 +1,16 @@
 # File options
 
---exclude Pods
-
 # Rules
 
 ## Enabled
 --enable andOperator
 --enable anyObjectProtocol
+--enable applicationMain
 --enable assertionFailures
 --enable blankLinesBetweenScopes
 --enable blockComments
 --enable braces
+--enable conditionalAssignment
 --enable consecutiveBlankLines
 --enable consecutiveSpaces
 --enable duplicateImports
@@ -18,14 +18,15 @@
 --enable emptyBraces
 --enable extensionAccessControl
 --enable fileHeader
+--enable hoistAwait
 --enable hoistPatternLet
+--enable hoistTry
 --enable initCoderUnavailable
---enable isEmpty
 --enable leadingDelimiters
 --enable linebreakAtEndOfFile
 --enable linebreaks
 --enable modifierOrder
---enable preferDouble
+--enable opaqueGenericParameters
 --enable preferKeyPath
 --enable redundantBackticks
 --enable redundantBreak
@@ -34,20 +35,23 @@
 --enable redundantFileprivate
 --enable redundantGet
 --enable redundantInit
+--enable redundantInternal
 --enable redundantLet
 --enable redundantLetError
 --enable redundantNilInit
 --enable redundantObjc
+--enable redundantOptionalBinding
 --enable redundantParens
 --enable redundantPattern
 --enable redundantRawValues
 --enable redundantReturn
 --enable redundantSelf
+--enable redundantStaticSelf
 --enable redundantType
 --enable redundantVoidReturnType
 --enable semicolons
---enable sortedImports
---enable sortedSwitchCases
+--enable sortImports
+--enable sortTypealiases
 --enable spaceAroundBraces
 --enable spaceAroundBrackets
 --enable spaceAroundComments
@@ -66,37 +70,36 @@
 --enable trailingSpace
 --enable typeSugar
 --enable void
---enable wrapEnumCases
+--enable wrapAttributes
 --enable yodaConditions
 
 ## Disabled
---disable acronyms                            # -> More often than not this breaks API and Backend Call Implementations
---disable blankLinesAroundMark                # -> Normally correct, but not for Comments after the MARK
---disable blankLinesAtEndOfScope              # -> disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
---disable blankLinesAtStartOfScope            # -> disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
---disable blankLinesBetweenImports            # -> Normally correct, but I write the @testable import first, then a blank line and then the alphabetized list of imports
---disable enumNamespaces                      # -> Caseless enums should be avoided in my opinion
---disable indent                              # -> This destroys clarity in too many cases
---disable markTypes                           # -> MARK Comments are not always preferential
---disable numberFormatting                    # -> When working on banking related projects we have different formatting for things like bank codes than we have on normal numbers. Those can't be automatically detected.
---disable organizeDeclarations                # -> Properties & Methods sometimes have more clarity when ordered semantically
---disable sortDeclarations                    # -> Too much overhead having to write // swiftformat:sort in files
---disable trailingCommas                      # -> A comma after the last element of a collection is never necessary
---disable unusedArguments                     # -> This destroys some Protocol implementations (applicationDidLaunch etc.)
---disable wrap                                # -> I have a widescreen monitor, I don't need wrapping
---disable wrapArguments                       # -> Normally I don't wrap arguments and if I do, it is decided on a case-by-case basis
---disable wrapAttributes                      # -> Wanted behavior: prev-line for func and computed properties, same-line for normal properties and types --> https://github.com/nicklockwood/SwiftFormat/issues/1232
---disable wrapConditionalBodies               # -> Please don't! 1 line guard statements should always be written in one line in my opinion
---disable wrapSwitchCases                     # -> Sometimes having all cases in one line is okay!
---disable wrapMultilineStatementBraces        # -> Objective-C is dying for many reasons ... and this is one of them!
+--disable blankLinesAroundMark				# -> Normally correct, but not for Comments after the MARK
+--disable blankLinesAtEndOfScope			# -> Disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
+--disable blankLinesAtStartOfScope			# -> Disabled until it is possible to add 1 line for classes, structs & enums, but 0 for func etc. --> https://github.com/nicklockwood/SwiftFormat/issues/261
+--disable enumNamespaces 					# -> Caseless enums should be avoided in my opinion
+--disable genericExtensions                 # -> Writing "where …" is more swifty and expressive than "<…>" in our opinion
+--disable headerFileName                    # -> By using the fileHeader rule we already ensure that the filename in the header is correct
+--disable indent 							# -> This destroys clarity in too many cases
+--disable numberFormatting 					# -> When working on banking related projects we have different formatting for things like bank codes than we have on normal numbers. Those can't be automatically detected.
+--disable sortDeclarations					# -> Too much overhead having to write // swiftformat:sort in files
+--disable trailingCommas 					# -> A comma after the last element of a collection is never necessary
+--disable unusedArguments					# -> This destroys some Protocol implementations (applicationDidLaunch etc.)
+--disable wrap 								# -> We have a widescreen monitors for a reason
+--disable wrapArguments						# -> Normally I don't wrap arguments and if I do, it is decided on a case-by-case basis
+--disable wrapMultilineStatementBraces 		# -> Objective-C is dying for many reasons ... and this is one of them!
+--disable wrapSingleLineComments        	# -> We have a widescreen monitors for a reason
 
 # Format options
 
 --allman false
 --closurevoid remove
+--complexattrs prev-line # wrapAttributes
+--computedvarattrs prev-line #warpAttributes
 --elseposition same-line
 --emptybraces spaced
 --extensionacl on-extension
+--funcattributes prev-line # wrapAttributes
 --guardelse same-line
 --header "\n📄 {file}\n👨🏼‍💻 Author: Benno Kress\n"
 --ifdef indent
@@ -113,15 +116,12 @@
 --semicolons inline
 --shortoptionals always
 --smarttabs enabled
+--storedvarattrs same-line #warpAttributes
 --stripunusedargs always
 --swiftversion 5.6
 --tabwidth 4
 --trimwhitespace always
+--typeattributes prev-line # wrapAttributes
 --voidtype void
 --xcodeindentation disabled
 --yodaswap always
-
-# Wait for wrapAttributes to support differentiation of stored and computed properties --> https://github.com/nicklockwood/SwiftFormat/issues/1232
-# --funcattributes prev-line
-# --typeattributes prev-line
-# --varattributes same-line # but not for computed properties
