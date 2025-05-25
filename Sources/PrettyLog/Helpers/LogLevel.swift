@@ -22,8 +22,14 @@ public enum LogLevel {
     case debug
     case verbose
     case info
+
+    case xcode
+    case staging
+    case production
+
     case warning
     case error
+    case keyEvent
 
     case custom(emoji: Character, priority: Int)
 
@@ -33,10 +39,14 @@ public enum LogLevel {
     public var emoji: String {
         switch self {
         case .debug: return "🟤"
+        case .xcode: return "🟤"
         case .verbose: return "🔵"
+        case .staging: return "🔵"
         case .info: return "🟢"
+        case .production: return "🟢"
         case .warning: return "🟡"
         case .error: return "🔴"
+        case .keyEvent: return "📊"
         case let .custom(emoji, _): return "\(emoji)"
         }
     }
@@ -46,10 +56,14 @@ public enum LogLevel {
     public var priority: Int {
         switch self {
         case .debug: return 100
+        case .xcode: return 100
         case .verbose: return 300
+        case .staging: return 300
         case .info: return 500
+        case .production: return 500
         case .warning: return 700
         case .error: return 900
+        case .keyEvent: return .max
         case let .custom(_, priority): return priority
         }
     }
@@ -89,7 +103,8 @@ public extension Optional where Wrapped == ClosedRange<LogLevel> {
     ///
     /// - Parameter element: The element to check for containment.
     /// - Attention: This will always return `false` if the range is `nil`.
-    @inlinable func contains(_ element: LogLevel) -> Bool {
+    @inlinable
+    func contains(_ element: LogLevel) -> Bool {
         guard let range = self else { return false }
         return range.contains(element)
     }

@@ -8,6 +8,9 @@ import Foundation
 /// The Log Target is a destination for log statements and can be local or remote.
 public protocol LogTarget {
 
+    /// If `false`, Strings passed to the `log` method as sensitive data will be discarded.
+    var canLogSensitiveInformation: Bool { get }
+
     /// Creates the log statement with a consistent design and sends it to its destination.
     ///
     /// This method will only be called by `PrettyLog` if the `logPriorityRange` requirements are met.
@@ -33,9 +36,10 @@ public extension LogTarget {
 extension LogTarget {
 
     /// Log the desired statement with the design defined in `createLog` if the Log Level allows it according to its `logPriorityRange`.
-    func log(_ level: LogLevel, message: String, category: LogCategory) {
+    func log(_ level: LogLevel, messages: LogStatementAssembler, category: LogCategory) {
         guard logPriorityRange.contains(level) else { return }
-        createLog(level, message: message, category: category)
+        guard let logStatement = messages.assembleLogStatement(includingSensitiveData: canLogSensitiveInformation) else { return }
+        createLog(level, message: logStatement, category: category)
     }
 
 }

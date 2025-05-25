@@ -8,10 +8,12 @@ import Foundation
 /// The Default Console Log combines all the elements of a log statement into a visually consistent design printed to the Xcode console. It uses the default `logPriorityRange` that allows all Log Levels.
 public struct ConsoleLog: LogTarget {
 
+    public var canLogSensitiveInformation = true
+
     public init() { }
 
     public func createLog(_ level: LogLevel, message: String, category: LogCategory) {
-        print(String.joined(with: " ", combining: prefix(level: level, category: category), message))
+        print(String.combining(prefix(level: level, category: category), message, using: " "))
     }
 
     // MARK: Private Helpers
@@ -23,7 +25,7 @@ public struct ConsoleLog: LogTarget {
     }
 
     private func prefix(level: LogLevel, category: LogCategory) -> String {
-        String.joined(with: " ", combining: currentTimestamp, category.truncatedOrPadded(to: 20), level.emoji)
+        String.combining(currentTimestamp, category.truncatedOrPadded(to: 20), level.emoji, using: " ")
     }
 
 }

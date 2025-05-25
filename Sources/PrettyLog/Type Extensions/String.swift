@@ -7,23 +7,40 @@ import Foundation
 
 extension String {
 
-    /// Joins all the given Strings with the given separator
+    /// Joins all the given Strings with the given separator.
     /// - Parameters:
-    ///   - separator: The separator to use in between the given Strings.
-    ///   - strings: The Strings to join together.
-    /// - Returns: The joined String
-    static func joined(with separator: String = "", combining strings: String?...) -> String {
-        joined(from: strings, using: separator) ?? ""
+    ///   - strings: The Strings to join together
+    ///   - separator: The separator to use in between the given Strings
+    /// - Returns: The String that results from combining the given Strings.
+    static func combining(_ strings: String..., using separator: String = "") -> String {
+        String.combining(strings, using: separator)
     }
 
-    /// Joins all the given Strings with the given separator
+    /// Joins all the given Strings with the given separator.
     /// - Parameters:
-    ///   - array: The Strings to join together.
-    ///   - separator: The separator to use in between the given Strings.
-    /// - Returns: The joined String or `nil` if no Strings were given.
-    static func joined(from array: [String?], using separator: String) -> String? {
-        let stringComponents = array.compactMap { $0 }
-        return stringComponents.joined(separator: separator).replacedWithNilIfEmpty
+    ///   - strings: The Strings to join together
+    ///   - separator: The separator to use in between the given Strings
+    /// - Returns: The String that results from combining the given Strings.
+    static func combining(_ strings: String?..., using separator: String = "") -> String? {
+        String.combining(strings, using: separator)
+    }
+
+    /// Joins all the given Strings with the given separator.
+    /// - Parameters:
+    ///   - strings: The Strings to join together
+    ///   - separator: The separator to use in between the given Strings
+    /// - Returns: The String that results from combining the given Strings.
+    static func combining(_ strings: [String], using separator: String = "") -> String {
+        strings.joined(separator: separator)
+    }
+
+    /// Joins all the given Strings with the given separator.
+    /// - Parameters:
+    ///   - strings: The Strings to join together
+    ///   - separator: The separator to use in between the given Strings
+    /// - Returns: The String that results from combining the given Strings.
+    static func combining(_ strings: [String?], using separator: String = "") -> String? {
+        strings.removingEmptyElements.joined(separator: separator).replacedWithNilIfEmpty
     }
 
     /// Removes all characters from the String exceeding the desired length and pads the String from  the beginning using spaces, if the String is shorter than the desired length.
@@ -33,7 +50,7 @@ extension String {
         guard count != desiredLength else { return self }
         var editedString = self
         if count > desiredLength {
-            let surplusCharacterCount = count - desiredLength - 1 // Subtracting 1 more to fit "…" in later
+            let surplusCharacterCount = count - desiredLength + 1 // Adding 1 more to fit "…" in later
             editedString = String(dropLast(surplusCharacterCount))
             editedString.append("…")
         } else {
@@ -43,9 +60,26 @@ extension String {
         return editedString
     }
 
-    /// Returns `nil` if the String is empty
+}
+
+// MARK: String Protocol
+
+extension StringProtocol {
+
+    /// Returns `nil` if empty
     var replacedWithNilIfEmpty: String? {
-        isEmpty ? nil : self
+        isEmpty ? nil : String(self)
+    }
+
+}
+
+// MARK: Colloection of Elements of Type Optional String
+
+extension Collection where Element == String? {
+
+    /// Returns the collection with all empty or `nil` elements removed.
+    var removingEmptyElements: [String] {
+        compactMap { $0?.replacedWithNilIfEmpty }
     }
 
 }
