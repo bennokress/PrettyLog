@@ -50,7 +50,7 @@ extension String {
         guard count != desiredLength else { return self }
         var editedString = self
         if count > desiredLength {
-            let surplusCharacterCount = count - desiredLength - 1 // Subtracting 1 more to fit "…" in later
+            let surplusCharacterCount = count - desiredLength + 1 // Adding 1 more to fit "…" in later
             editedString = String(dropLast(surplusCharacterCount))
             editedString.append("…")
         } else {

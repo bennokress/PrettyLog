@@ -17,13 +17,14 @@ let platforms: [SupportedPlatform] = [
 
 let module: Product = .library(name: packageName, targets: [packageName])
 let mainTarget: Target = .target(name: packageName, dependencies: dependencies.target)
+let testTarget: Target = .testTarget(name: packageName + "Tests", dependencies: [.target(name: packageName)])
 
 let package = Package(
     name: displayName,
     platforms: platforms,
     products: [module],
     dependencies: dependencies.package,
-    targets: [mainTarget],
+    targets: [mainTarget, testTarget],
     swiftLanguageModes: [.v5, .v6]
 )
 
