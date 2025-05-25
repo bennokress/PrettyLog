@@ -8,23 +8,25 @@ let displayName = packageName
 let dependencies: [Dependency] = []
 
 let platforms: [SupportedPlatform] = [
-    .iOS(.v12),
-    .macCatalyst(.v13),
-    .macOS(.v10_13),
-    .tvOS(.v12),
-    .watchOS(.v4)
+    .iOS(.v15),
+    .macCatalyst(.v15),
+    .macOS(.v12),
+    .tvOS(.v15),
+    .watchOS(.v8)
 ]
 
 let module: Product = .library(name: packageName, targets: [packageName])
+let demoApp: Product = .executable(name: packageName + "Demo", targets: [packageName + "Demo"])
 let mainTarget: Target = .target(name: packageName, dependencies: dependencies.target)
+let sampleAppTarget: Target = .executableTarget(name: packageName + "Demo", dependencies: [.target(name: packageName)], path: "Demo")
 let testTarget: Target = .testTarget(name: packageName + "Tests", dependencies: [.target(name: packageName)])
 
 let package = Package(
     name: displayName,
     platforms: platforms,
-    products: [module],
+    products: [module, demoApp],
     dependencies: dependencies.package,
-    targets: [mainTarget, testTarget],
+    targets: [mainTarget, sampleAppTarget, testTarget],
     swiftLanguageModes: [.v5, .v6]
 )
 
