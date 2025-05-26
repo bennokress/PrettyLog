@@ -254,6 +254,7 @@ public struct PrettyLogProxy {
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `messages` and `sensitiveMessages` inside the `statementAssembler` are both empty or consist only of `nil`-elements.
     private static func log(_ level: LogLevel, statementAssembler: LogStatementAssembler, category: LogCategory, to targets: [LogTarget]) {
+        assert(!targets.isEmpty, "⚠️ Warning: trying to log, but no log targets were passed to the log method. No logs will be recorded!")
         for target in targets {
             target.log(level, messages: statementAssembler, category: category)
         }
