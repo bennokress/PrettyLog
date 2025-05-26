@@ -387,7 +387,7 @@ Contributions, issues and feature requests are welcome!<br />Feel free to check 
 
 ## 📝 License
 
-Copyright © 2022-2025 [Benno Kress](https://github.com/bennokress).<br />
+Copyright © [Benno Kress](https://github.com/bennokress).<br />
 This project is [MIT](https://github.com/bennokress/PrettyLog/blob/main/LICENSE) licensed.
 
 ---
