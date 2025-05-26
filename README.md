@@ -278,16 +278,7 @@ Another option is to create a Swift file somewhere in your app that serves as a 
 import Foundation
 import PrettyLog
 
-/// Log a statement with VERBOSE level.
-/// - Parameters:
-///     - messages: One or more strings and string-convertible objects to include in the log statement
-///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
-///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
-}
+// TODO: Decide, if you want to use logD or logX, logV or logS, as well as logI or logP below
 
 /// Log a statement with DEBUG level.
 /// - Parameters:
@@ -298,6 +289,17 @@ func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logD(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
+}
+
+/// Log a statement with VERBOSE level.
+/// - Parameters:
+///     - messages: One or more strings and string-convertible objects to include in the log statement
+///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+///     - separator: The separator between messages (defaults to `-`)
+///     - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
+func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
 }
 
 /// Log a statement with INFO level.
