@@ -16,17 +16,15 @@ let platforms: [SupportedPlatform] = [
 ]
 
 let module: Product = .library(name: packageName, targets: [packageName])
-let demoApp: Product = .executable(name: packageName + "Demo", targets: [packageName + "Demo"])
 let mainTarget: Target = .target(name: packageName, dependencies: dependencies.target)
-let sampleAppTarget: Target = .executableTarget(name: packageName + "Demo", dependencies: [.target(name: packageName)], path: "Demo")
 let testTarget: Target = .testTarget(name: packageName + "Tests", dependencies: [.target(name: packageName)])
 
 let package = Package(
     name: displayName,
     platforms: platforms,
-    products: [module, demoApp],
+    products: [module],
     dependencies: dependencies.package,
-    targets: [mainTarget, sampleAppTarget, testTarget],
+    targets: [mainTarget, testTarget],
     swiftLanguageModes: [.v5, .v6]
 )
 
