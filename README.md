@@ -20,7 +20,7 @@ dependencies: [
 
 ## Requirements
 
-- Xcode 16 / Swift 6.0 toolchain or later (`swift-tools-version: 6.0`)
+- Xcode 26 / Swift 6.2 toolchain or later (`swift-tools-version: 6.2`)
 - iOS 15, Mac Catalyst 15, macOS 12, tvOS 15 or watchOS 9 as deployment target
 
 ## Migrating from an earlier version
@@ -34,6 +34,14 @@ Every major version comes with migration notes that list what changed and what y
 
 PrettyLog ships no log target and no global log functions. Your app decides where its log statements go and which of those destinations may receive sensitive data, so it defines both once.
 
+Every declaration in the samples below is marked `nonisolated`. New Xcode projects make the main actor the default isolation of an app (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`). Without the keyword, your targets, log functions, custom levels and custom categories would belong to the main actor too, and logging from a background task, an actor or a `nonisolated` function would fail with errors like these:
+
+- `Main actor-isolated global function 'logI(_:sensitiveMessages:joinedBy:category:)' cannot be called from outside of the actor`
+- `Main actor-isolated conformance of 'ConsoleLog' to 'LogTarget' cannot be used in nonisolated context`
+- `Main actor-isolated static property 'todo' can not be referenced from a nonisolated context`
+
+In a project without that setting the keyword changes nothing, so keep it either way.
+
 ### 1. Define a log target
 
 A log target conforms to `LogTarget` and decides how a log statement looks and where it goes. This one prints to the Xcode console and only includes sensitive messages in debug builds:
@@ -42,7 +50,7 @@ A log target conforms to `LogTarget` and decides how a log statement looks and w
 import Foundation
 import PrettyLog
 
-struct ConsoleLog: LogTarget {
+nonisolated struct ConsoleLog: LogTarget {
 
     var canLogSensitiveInformation: Bool { isDebugApp }
 
@@ -96,7 +104,7 @@ import PrettyLog
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logD(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
 }
 
@@ -107,7 +115,7 @@ func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
 }
 
@@ -118,7 +126,7 @@ func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
 }
 
@@ -129,7 +137,7 @@ func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logW(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
 }
 
@@ -140,7 +148,7 @@ func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logE(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
 }
 
@@ -150,7 +158,7 @@ func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
-func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logK(messages, joinedBy: separator, category: category, to: logTargets)
 }
 
@@ -159,7 +167,7 @@ func logK(_ messages: String?..., joinedBy separator: String = " - ", category: 
 ///   - error: The error to log
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `error` is `nil`.
-func log(_ error: Error?, category: LogCategory = .uncategorized) {
+nonisolated func log(_ error: Error?, category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(error, category: category, to: logTargets)
 }
 
@@ -168,7 +176,7 @@ func log(_ error: Error?, category: LogCategory = .uncategorized) {
 ///   - exception: The exception to log
 ///   - category: The category of the log statement (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `exception` is `nil`.
-func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
+nonisolated func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(exception, category: category, to: logTargets)
 }
 
@@ -177,7 +185,7 @@ func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
 // MARK: - Log Targets
 
 /// Every log statement is sent to these targets. Add your own, for example one that sends statements to your backend.
-private var logTargets: [LogTarget] {
+nonisolated private var logTargets: [LogTarget] {
     [ConsoleLog()]
 }
 ```
@@ -287,7 +295,7 @@ log(exception, category: .service)
 Included in PrettyLog are the categories that I use routinely. Those may differ from what is useful in your project, so I made it easy for you to define your own categories. Simply extend `LogCategory` like this:
 
 ```swift
-extension LogCategory {
+nonisolated extension LogCategory {
 
     /// This custom category can be used like all the predefined ones: logV("Running Unit Tests ...", category: .todo)
     static var todo: LogCategory { .custom("To Do") }
@@ -300,7 +308,7 @@ extension LogCategory {
 PrettyLog contains a few default Log Levels, but that doesn't mean that you are limited to them. To define your own level extend `LogLevel` like this:
 
 ```swift
-extension LogLevel {
+nonisolated extension LogLevel {
 
     /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method of the proxy though: `PrettyLogProxy.log(["The login method is not yet implemented"], as: .todo, category: .todo, to: logTargets)`
     static var todo: LogLevel { .custom(emoji: "🟣", priority: 200) }
@@ -317,7 +325,7 @@ If you want to use your custom Log Level in line with all the predefined ones, d
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
 ///     - separator: The separator between messages (defaults to `" - "`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements.
-func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ") {
+nonisolated func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ") {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: .todo, to: logTargets)
 }
 ```
@@ -330,7 +338,7 @@ In real world apps you might want to log to backends and web services as well, o
 import Foundation
 import PrettyLog
 
-struct BackendLog: LogTarget {
+nonisolated struct BackendLog: LogTarget {
 
     let canLogSensitiveInformation = false
 
@@ -346,10 +354,20 @@ struct BackendLog: LogTarget {
 Then add it to the list in your logging file:
 
 ```swift
-private var logTargets: [LogTarget] {
+nonisolated private var logTargets: [LogTarget] {
     [ConsoleLog(), BackendLog()]
 }
 ```
+
+### Keeping Targets in a Constant
+
+`LogTarget` doesn't require `Sendable`, so a target can be any type, including a class with mutable state. The computed `logTargets` above creates the targets on every call and works with any of them. If you would rather create them once and keep them in a constant, the Swift 6 language mode requires the constant to be `Sendable`. Make your target types `Sendable` and declare the list like this:
+
+```swift
+nonisolated private let logTargets: [any LogTarget & Sendable] = [ConsoleLog(), BackendLog()]
+```
+
+Structs whose stored properties are all `Sendable` get the conformance automatically, as long as they aren't `public`. A class needs to be `final` and protect its mutable state itself, for example with a lock.
 
 ## Author
 

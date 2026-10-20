@@ -17,7 +17,7 @@ import Foundation
 ///     }
 ///
 /// - Attention: For the default `PrettyLog`s default Console Log the name of the category will always be truncated to 20 characters in order to keep the visual design of the log statements consistent.
-public enum LogCategory {
+public enum LogCategory: Sendable {
 
     case appState
     case debug

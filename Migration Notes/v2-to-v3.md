@@ -6,7 +6,7 @@ Applies to every 3.x release.
 
 | | 2.x | 3.x |
 | --- | --- | --- |
-| swift-tools-version | 5.9 in 2.0.4 | 6.0 (Xcode 16 or later) |
+| swift-tools-version | 5.9 in 2.0.4 | 6.2 (Xcode 26 or later) |
 | Swift language modes | 5 and 6 | 5 and 6 |
 | iOS | 15 | 15 |
 | Mac Catalyst | 15 | 15 |
@@ -16,7 +16,7 @@ Applies to every 3.x release.
 
 ## Checklist
 
-- [ ] [Use Xcode 16 and raise watchOS to 9](#1-use-xcode-16-and-raise-watchos-to-9)
+- [ ] [Use Xcode 26 and raise watchOS to 9](#1-use-xcode-26-and-raise-watchos-to-9)
 - [ ] [Define your own log targets](#2-define-your-own-log-targets)
 - [ ] [Define your own log functions](#3-define-your-own-log-functions)
 - [ ] [Pass your targets to every `PrettyLogProxy` call](#4-pass-your-targets-to-every-prettylogproxy-call)
@@ -24,13 +24,13 @@ Applies to every 3.x release.
 
 ## Breaking changes
 
-### 1. Use Xcode 16 and raise watchOS to 9
+### 1. Use Xcode 26 and raise watchOS to 9
 
-**Affects you if** you build with a toolchain older than Swift 6.0, or your app supports watchOS 8.
+**Affects you if** you build with a toolchain older than Swift 6.2, or your app supports watchOS 8.
 
-**What changed:** The package manifest uses `swift-tools-version: 6.0`, and the minimum watchOS version is 9.
+**What changed:** The package manifest uses `swift-tools-version: 6.2`, and the minimum watchOS version is 9. Swift 6.2 is the first version that lets an app default to main actor isolation, and the setup in the README relies on `nonisolated` declarations that older toolchains don't fully support.
 
-**What to do:** Build with Xcode 16 or later. Raise the watchOS deployment target of every target that depends on PrettyLog to 9, or stay on PrettyLog 2.
+**What to do:** Build with Xcode 26 or later, which the App Store requires for uploads anyway. Raise the watchOS deployment target of every target that depends on PrettyLog to 9, or stay on PrettyLog 2.
 
 ### 2. Define your own log targets
 
@@ -38,7 +38,7 @@ Applies to every 3.x release.
 
 **What changed:** PrettyLog ships no log target anymore. `ConsoleLog` included sensitive messages in every build, so an app that relied on it printed sensitive data to stdout in release builds too. A package can't know where an app may send sensitive data, so every app now defines its targets itself.
 
-**What to do:** Write your own target that conforms to `LogTarget`. The README shows a console target under "Setup" that prints the same format as `ConsoleLog` did and includes sensitive messages only in debug builds. If you name it `ConsoleLog`, existing references such as `[ConsoleLog(), BackendLog()]` keep compiling.
+**What to do:** Write your own target that conforms to `LogTarget`. The README shows a console target under "Setup" that prints the same format as `ConsoleLog` did and includes sensitive messages only in debug builds. If you name it `ConsoleLog`, existing references such as `[ConsoleLog(), BackendLog()]` keep compiling. If your app makes the main actor its default isolation, which new Xcode projects do, the type has to be `nonisolated`, as in the sample below. Otherwise you can only log from the main actor. The README explains this under "Setup".
 
 ```swift
 // Before (2.x): ConsoleLog came from PrettyLog
@@ -47,7 +47,7 @@ import PrettyLog
 PrettyLogProxy.logI(messages, to: [ConsoleLog()])
 
 // After (3.x): ConsoleLog is a type in your app
-struct ConsoleLog: LogTarget {
+nonisolated struct ConsoleLog: LogTarget {
 
     var canLogSensitiveInformation: Bool { isDebugApp }
 
@@ -62,7 +62,7 @@ struct ConsoleLog: LogTarget {
 
 **What changed:** PrettyLog has no global log functions anymore. `PrettyLogProxy` is the only entry point.
 
-**What to do:** Add one file to your app that defines the log functions you use and the list of targets they send to. The README has a complete file under "Setup". Your call sites stay the same, and the other files no longer need `import PrettyLog`. If you already have such a file, only step 4 applies to you.
+**What to do:** Add one file to your app that defines the log functions you use and the list of targets they send to. The README has a complete file under "Setup". Your call sites stay the same, and the other files no longer need `import PrettyLog`. If you already have such a file, only step 4 applies to you. Mark the functions and the list of targets `nonisolated`, as in the sample below. In an app whose default isolation is the main actor they would otherwise only be callable from the main actor; in other apps the keyword changes nothing.
 
 ```swift
 // Before (2.x): any file
@@ -73,11 +73,11 @@ logI("User tapped Continue Button", category: .user)
 // After (3.x): your logging file
 import PrettyLog
 
-func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
 }
 
-private var logTargets: [LogTarget] {
+nonisolated private var logTargets: [LogTarget] {
     [ConsoleLog()]
 }
 
@@ -113,3 +113,11 @@ PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: se
 | `NSException` | the `description` of the exception | `name - reason - userInfo` | `name` |
 
 **What to do:** Adjust anything that parses these statements. If a target really needs the details, it has to allow sensitive data.
+
+## New and optional
+
+### `LogLevel` and `LogCategory` are `Sendable`
+
+You can now keep levels and categories in a `static let` or pass them into a `Task` in the Swift 6 language mode, including your own custom levels and categories. Nothing to change.
+
+`LogTarget` still doesn't require `Sendable`, so your existing targets keep compiling. If you want to keep your targets in a `static let` or hand them across isolation boundaries, make your target types `Sendable` yourself, see "Keeping Targets in a Constant" in the README.

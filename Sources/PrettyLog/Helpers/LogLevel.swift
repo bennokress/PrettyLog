@@ -17,7 +17,7 @@ import Foundation
 ///     }
 ///
 /// - Attention: The level should always be represented by emoji in order to keep the visual design of the log statements consistent, although other characters could be defined for custom levels.
-public enum LogLevel {
+public enum LogLevel: Sendable {
 
     case debug
     case verbose

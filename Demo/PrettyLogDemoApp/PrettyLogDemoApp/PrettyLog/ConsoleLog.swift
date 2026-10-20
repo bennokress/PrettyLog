@@ -14,6 +14,14 @@ struct ConsoleLog: LogTarget {
 
     var canLogSensitiveInformation: Bool { isDebugApp }
 
+    /// Created once instead of per log call, because logging happens often. A format style is a `Sendable` value type,
+    /// so it can be shared without a lock. The time zone is fixed at first use.
+    private static let timestampFormat = Date.VerbatimFormatStyle(
+        format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits).\(secondFraction: .fractional(3))",
+        timeZone: .current,
+        calendar: .current
+    )
+
     // MARK: - LogTarget Implementation
 
     func createLog(_ level: LogLevel, message: String, category: LogCategory) {
@@ -23,9 +31,7 @@ struct ConsoleLog: LogTarget {
     // MARK: - Private Methods
 
     private var currentTimestamp: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        return formatter.string(from: Date())
+        Date.now.formatted(Self.timestampFormat)
     }
 
     private func prefix(level: LogLevel, category: LogCategory) -> String {

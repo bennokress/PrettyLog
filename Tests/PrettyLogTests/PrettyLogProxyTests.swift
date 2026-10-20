@@ -214,3 +214,17 @@ func prettyLogProxyFilteredByPriority() {
     #expect(mockTarget.capturedLogs.count == 1)
     #expect(mockTarget.capturedLogs[0].1 == "This should pass")
 }
+
+private struct SendableLogTarget: LogTarget {
+    let canLogSensitiveInformation = false
+    func createLog(_ level: LogLevel, message: String, category: LogCategory) { }
+}
+
+/// The README suggests keeping targets in a constant of type `[any LogTarget & Sendable]`. This compiles only while such a list can be passed to the proxy.
+private let sendableLogTargets: [any LogTarget & Sendable] = [SendableLogTarget()]
+
+@Test
+func prettyLogProxyAcceptsSendableTargets() {
+    PrettyLogProxy.logI(["Info"], to: sendableLogTargets)
+    #expect(sendableLogTargets.count == 1)
+}
