@@ -8,7 +8,12 @@ import Foundation
 /// The Log Target is a destination for log statements and can be local or remote.
 public protocol LogTarget {
 
-    /// If `false`, Strings passed to the `log` method as sensitive data will be discarded.
+    /// Whether this target receives the sensitive messages of a log statement.
+    ///
+    /// Sensitive messages let you log extra detail where it helps, for example in debug builds,
+    /// and leave it out elsewhere, for example in production or on a remote backend.
+    /// If `true`, the message passed to `createLog` contains the sensitive messages after the regular ones.
+    /// If `false`, they are left out before `createLog` is called.
     var canLogSensitiveInformation: Bool { get }
 
     /// Creates the log statement with a consistent design and sends it to its destination.
