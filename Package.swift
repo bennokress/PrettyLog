@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.3
 
 import PackageDescription
 
@@ -11,7 +11,7 @@ let platforms: [SupportedPlatform] = [
     .macCatalyst(.v15),
     .macOS(.v12),
     .tvOS(.v15),
-    .watchOS(.v8)
+    .watchOS(.v9)
 ]
 
 let module: Product = .library(name: packageName, targets: [packageName])
@@ -24,7 +24,7 @@ let package = Package(
     products: [module],
     dependencies: dependencies.package,
     targets: [mainTarget, testTarget],
-    swiftLanguageVersions: [.version("6"), .v5]
+    swiftLanguageModes: [.v6, .v5]
 )
 
 // MARK: - Helpers
