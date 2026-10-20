@@ -85,7 +85,7 @@ With PrettyLog you can make your print statements prettier and more useful. Just
 print("User tapped Continue Button")
 ```
 
-<img alt="Console Output with default print statement" src="https://www.dropbox.com/scl/fi/dgk54lv9ujsy6202eug0x/1-Basic-Usage-print.png?rlkey=rgftvpk2e7m3f85t7lpb62586&st=sx4dartt&raw=1" />
+<img alt="Console Output with default print statement" src="Assets/README/1-Basic-Usage-print.png" />
 
 ... with this:
 
@@ -93,7 +93,7 @@ print("User tapped Continue Button")
 logD("User tapped Continue Button")
 ```
 
-<img alt="Console Output with PrettyLog statement" src="https://www.dropbox.com/scl/fi/d5ew6983vwljrdynkuhet/2-Basic-Usage-logD.png?rlkey=6geqqu2cs7nladky1e38dgneb&st=ewszp8d3&raw=1" />
+<img alt="Console Output with PrettyLog statement" src="Assets/README/2-Basic-Usage-logD.png" />
 
 So far so good. You have a lot more options with PrettyLog though ...
 
@@ -109,7 +109,7 @@ logW("A warning log")
 logE("An error log")
 ```
 
-<img alt="Console Output of multiple PrettyLog statements with different Log Levels" src="https://www.dropbox.com/scl/fi/4q5hn09bkuuu8pk12ml98/3-Advanced-Usage-Levels.png?rlkey=e7i4eq9ndiu8b6qnbxsngv908&st=07wb1pgn&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements with different Log Levels" src="Assets/README/3-Advanced-Usage-Levels.png" />
 
 ### Semantic Log Levels
 
@@ -125,7 +125,7 @@ logP("A log up to Production is basically an info log")
 logK("And this is a Key Event Log for statistics")
 ```
 
-<img alt="Console Output of multiple PrettyLog statements using Semantic Log Levels" src="https://www.dropbox.com/scl/fi/ju83pf96vetnen5ncfx04/4-Advanced-Usage-Semantic-Levels.png?rlkey=apzd1evjdm7tqp8bx3d1py7v1&st=njjfm3nq&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements using Semantic Log Levels" src="Assets/README/4-Advanced-Usage-Semantic-Levels.png" />
 
 ### Log Categories
 
@@ -137,7 +137,7 @@ logE("Username and Password did not match", category: .manager)
 logW("Or create your own Category ...", category: .custom("Announcement"))
 ```
 
-<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="https://www.dropbox.com/scl/fi/f72nox9eqn69z4702o66j/5-Log-Categories.png?rlkey=r6i181zo69bu3ohq5whus0tr7&st=wfhn51wv&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="Assets/README/5-Log-Categories.png" />
 
 ### Sensitive Data Logging
 
@@ -151,7 +151,7 @@ logE("Username and Password did not match", category: .manager)
 logW("Or create your own Category ...", category: .custom("Announcement"))
 ```
 
-<img alt="The same Log Statements as before, but the Token is now marked as sensitive data and can be sent to Production like that" src="https://www.dropbox.com/scl/fi/chwpeb6h1pxg3a1ihrnrj/6-Sensitive-Data.png?rlkey=tauy4kbqqv8kvxnfu4qxlct25&st=pgyezqwn&raw=1" />
+<img alt="The same Log Statements as before, but the Token is now marked as sensitive data and can be sent to Production like that" src="Assets/README/6-Sensitive-Data.png" />
 
 ### Log Message Concatenation
 
@@ -160,7 +160,7 @@ logV(service, "Got an API Response ...", category: .service)
 logW(screen, element, "Username too long", joinedBy: " → ", category: .manager)
 ```
 
-<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="https://www.dropbox.com/scl/fi/wjx70lu2abrumt4jzqc0m/7-Concatenation.png?rlkey=yjmnpdclplxnh8wbpapso5lcm&st=d20osoh0&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="Assets/README/7-Concatenation.png" />
 
 ### Errors and Exceptions
 
@@ -171,7 +171,7 @@ log(error, category: .service)
 log(exception, category: .service)
 ```
 
-<img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="https://www.dropbox.com/scl/fi/t0mx2xt4mxkawul0lbt7x/8-Errors-and-Exceptions.png?rlkey=bq5blrafu1ixw73vatxelh522&st=iulaollm&raw=1" />
+<img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="Assets/README/8-Errors-and-Exceptions.png" />
 
 ## Expert Usage
 
