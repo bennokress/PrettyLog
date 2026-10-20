@@ -11,7 +11,7 @@ import Foundation
 ///
 ///     extension LogLevel {
 ///
-///         /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method though: `log("The login method is not yet implemented", category: .todo, as: .todo)
+///         /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method of the proxy though: `PrettyLogProxy.log(["The login method is not yet implemented"], as: .todo, category: .todo)`
 ///         static var todo: LogLevel { .custom(emoji: "🟣", priority: 200) }
 ///
 ///     }
