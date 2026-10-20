@@ -23,63 +23,168 @@ dependencies: [
 - Xcode 16 / Swift 6.0 toolchain or later (`swift-tools-version: 6.0`)
 - iOS 15, Mac Catalyst 15, macOS 12, tvOS 15 or watchOS 9 as deployment target
 
-## Migration Guide (v1 → v2)
+## Migrating from an earlier version
 
-PrettyLog v2 introduces several new features while maintaining backward compatibility except for one small breaking change. Here's what's new and what you need to update:
+Every major version comes with migration notes that list what changed and what you have to do:
 
-### New Features
+- [PrettyLog 1 → 2](Migration%20Notes/v1-to-v2.md)
+- [PrettyLog 2 → 3](Migration%20Notes/v2-to-v3.md)
 
-#### 1. New Semantic Log Levels
-Three new log levels have been added with environment-specific semantics. In our team at work this has been established to make clear which level is appropriate for a log message.
+## Setup
 
-- 🟤 `.xcode` - identical to `.debug`
-- 🔵 `.staging` - identical to `.verbose`
-- 🟢 `.production` - identical to `.info`
+PrettyLog ships no log target and no global log functions. Your app decides where its log statements go and which of those destinations may receive sensitive data, so it defines both once.
 
-Additionally Key Event Logging was added which is meant to always log without sensitive data, perhaps even to another system, to gain insights and generate statistics.
+### 1. Define a log target
 
-- 📊 `.keyEvent` - Highest priority for critical events (📊)
-
-#### 2. Sensitive Data Logging Support
-All logging methods except `logK` now support an optional `sensitiveMessages` parameter for data that should only be logged in certain environments (configurable for each `LogTarget`):
+A log target conforms to `LogTarget` and decides how a log statement looks and where it goes. This one prints to the Xcode console and only includes sensitive messages in debug builds:
 
 ```swift
-// Before (1.x)
-logI("Login", "User ID: \(userID)", category: .user)
+import Foundation
+import PrettyLog
 
-// After (2.0) - with sensitive data support we could for example log the password to the console, but not in production
-logI("Login", "User ID: \(userID)", sensitiveMessages: "Password: \(password)", category: .user)
-```
+struct ConsoleLog: LogTarget {
 
-#### 3. Swift 6 Compatibility
-PrettyLog builds in the Swift 6 language mode and still supports the Swift 5 language mode for consumers.
+    var canLogSensitiveInformation: Bool { isDebugApp }
 
-The package manifest now uses `swift-tools-version: 6.0`, so resolving the package needs Xcode 16 or a Swift 6.0 toolchain or later (see Requirements).
+    func createLog(_ level: LogLevel, message: String, category: LogCategory) {
+        print("\(prefix(level: level, category: category)) \(message)")
+    }
 
-### Breaking Change
+    // MARK: Private Helpers
 
-#### Log Target Protocol Update
-With the new sensitive data, an additional parameter is needed to define a `LogTarget` that defines if the target should log or omit sensitive information.
+    private var isDebugApp: Bool {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }
 
-```swift
-public protocol LogTarget {
+    private var currentTimestamp: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss.SSS"
+        return formatter.string(from: Date())
+    }
 
-    /// If `false`, Strings passed to the `log` method as sensitive data will be discarded.
-    var canLogSensitiveInformation: Bool { get }
-
-    // …
+    private func prefix(level: LogLevel, category: LogCategory) -> String {
+        "\(currentTimestamp) \(category.truncatedOrPadded(to: 20)) \(level.emoji)"
+    }
 
 }
 ```
 
-### Optional Changes
+`LogTarget` has three requirements:
 
-- All existing `logD()`, `logV()`, `logI()`, `logW()`, `logE()` calls continue to work unchanged, but can be adjusted to the new semantic notation
-- Global log method definitions from the "Import once" pattern work as before, but can be expanded to support the new functionalities
+- `canLogSensitiveInformation`: if `false`, the target never receives the sensitive part of a log statement.
+- `createLog(_:message:category:)`: builds the log statement and sends it to its destination.
+- `logPriorityRange`: the levels the target accepts. It is optional and allows every level by default.
+
+### 2. Define your log functions
+
+Create one Swift file in your app that imports PrettyLog, lists your targets and defines the global log functions you want to use. Every function hands its arguments on to `PrettyLogProxy`, because Swift can't forward variadic parameters from one function to another. With this file in place, no other file in your app needs to import PrettyLog.
+
+```swift
+import Foundation
+import PrettyLog
+
+// TODO: Decide, if you want to use logD or logX, logV or logS, as well as logI or logP below
+
+/// Log a statement with DEBUG level.
+/// - Parameters:
+///   - messages: One or more strings and string-convertible objects to include in the log statement
+///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+///   - separator: The separator between messages (defaults to `" - "`)
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
+func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logD(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+}
+
+/// Log a statement with VERBOSE level.
+/// - Parameters:
+///   - messages: One or more strings and string-convertible objects to include in the log statement
+///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+///   - separator: The separator between messages (defaults to `" - "`)
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
+func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+}
+
+/// Log a statement with INFO level.
+/// - Parameters:
+///   - messages: One or more strings and string-convertible objects to include in the log statement
+///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+///   - separator: The separator between messages (defaults to `" - "`)
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
+func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+}
+
+/// Log a statement with WARNING level.
+/// - Parameters:
+///   - messages: One or more strings and string-convertible objects to include in the log statement
+///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+///   - separator: The separator between messages (defaults to `" - "`)
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
+func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logW(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+}
+
+/// Log a statement with ERROR level.
+/// - Parameters:
+///   - messages: One or more strings and string-convertible objects to include in the log statement
+///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+///   - separator: The separator between messages (defaults to `" - "`)
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
+func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logE(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+}
+
+/// Log a Key Event.
+/// - Parameters:
+///   - messages: One or more strings and string-convertible objects to include in the log statement
+///   - separator: The separator between messages (defaults to `" - "`)
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
+func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logK(messages, joinedBy: separator, category: category, to: logTargets)
+}
+
+/// Log an `Error`.
+/// - Parameters:
+///   - error: The error to log
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `error` is `nil`.
+func log(_ error: Error?, category: LogCategory = .uncategorized) {
+    PrettyLogProxy.log(error, category: category, to: logTargets)
+}
+
+/// Log a `NSException`.
+/// - Parameters:
+///   - exception: The exception to log
+///   - category: The category of the log statement (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `exception` is `nil`.
+func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
+    PrettyLogProxy.log(exception, category: category, to: logTargets)
+}
+
+// TODO: Add custom global log methods if needed -> for example: if you have custom LogLevel and LogCategory `.todo`, you could define `logT` for that (see "Custom Log Levels").
+
+// MARK: - Log Targets
+
+/// Every log statement is sent to these targets. Add your own, for example one that sends statements to your backend.
+private var logTargets: [LogTarget] {
+    [ConsoleLog()]
+}
+```
 
 ## Basic Usage
 
-With PrettyLog you can make your print statements prettier and more useful. Just replace this ...
+With the setup in place you can make your print statements prettier and more useful. Just replace this ...
 
 ```swift
 print("User tapped Continue Button")
@@ -99,6 +204,8 @@ So far so good. You have a lot more options with PrettyLog though ...
 
 ## Advanced Usage
 
+All samples below call the log functions from your own file (see <a href="#setup">'Setup'</a>).
+
 ### Log Levels
 
 ```swift
@@ -113,9 +220,9 @@ logE("An error log")
 
 ### Semantic Log Levels
 
-Instead of Debug, Verbose and Info, you can also use Xcode, Staging and Production, as well as the new Key Event for Statistics Generation.
+Instead of Debug, Verbose and Info, you can also use Xcode, Staging and Production, as well as the Key Event for Statistics Generation.
 
-Note that only `logX` and `logK` ship as global functions. `logS` and `logP` exist on `PrettyLogProxy` only, so define them as global functions in your own logging file (see <a href="#import-once">'Import once'</a>) to call them like below:
+To call them like below, define `logX`, `logS` and `logP` in your logging file the same way as `logD`, `logV` and `logI`, handing on to `PrettyLogProxy.logX`, `PrettyLogProxy.logS` and `PrettyLogProxy.logP`:
 
 ```swift
 logX("A log only to Xcode is basically a debug log")
@@ -141,7 +248,7 @@ logW("Or create your own Category ...", category: .custom("Announcement"))
 
 ### Sensitive Data Logging
 
-But wouldn't it be nice to log that a token was saved in production, but omit the token itself there while still logging it in development? This is possible with v2 of PrettyLog:
+But wouldn't it be nice to log that a token was saved in production, but omit the token itself there while still logging it in development? Pass it as a sensitive message. Only targets whose `canLogSensitiveInformation` is `true` receive it:
 
 ```swift
 logV("Got an API Response ...", category: .service)
@@ -195,13 +302,13 @@ PrettyLog contains a few default Log Levels, but that doesn't mean that you are 
 ```swift
 extension LogLevel {
 
-    /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method of the proxy though: `PrettyLogProxy.log(["The login method is not yet implemented"], as: .todo, category: .todo)`
+    /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method of the proxy though: `PrettyLogProxy.log(["The login method is not yet implemented"], as: .todo, category: .todo, to: logTargets)`
     static var todo: LogLevel { .custom(emoji: "🟣", priority: 200) }
 
 }
 ```
 
-If you want to use your custom Log Level in line with all the predefined ones, you might want to define a global method like `logT` for it somewhere in your code:
+If you want to use your custom Log Level in line with all the predefined ones, define a global method like `logT` for it in your logging file (see <a href="#setup">'Setup'</a>):
 
 ```swift
 /// Log messages in the provided order with TODO level
@@ -210,179 +317,38 @@ If you want to use your custom Log Level in line with all the predefined ones, y
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
 ///     - separator: The separator between messages (defaults to `" - "`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements.
-public func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ") {
-    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: .todo)
+func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ") {
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: .todo, to: logTargets)
 }
 ```
 
-See the section <a href="#import-once">'Import once'</a> in the Integration part of this README for a well suited place to define this.
+### More Log Targets
 
-### Custom Log Targets
-
-PrettyLog makes it easy to send your log messages to different destinations with Log Targets. Predefined in the package is `ConsoleLog` which sends statements of all Log Levels to the Xcode console.
-In real world apps you might want to log to Backends and Web Services or locally using different local solutions than the plain old `print`. That's where the `LogTarget` protocol comes in.
-
-The updated `LogTarget` protocol in v2.0 requires you to implement:
+In real world apps you might want to log to backends and web services as well, or locally with something other than `print`. Each destination is its own `LogTarget`, and your logging file sends every statement to all of them. A target for a backend would typically reject sensitive data and only accept the more important levels:
 
 ```swift
 import Foundation
 import PrettyLog
 
-struct Console: LogTarget {
+struct BackendLog: LogTarget {
 
-    var canLogSensitiveInformation: Bool { !App.shared.isProductionVersion }
+    let canLogSensitiveInformation = false
 
-    var logPriorityRange: ClosedRange<LogLevel>? {
-        App.shared.isDeveloperVersion ? .allowAll : .allowNone
-    }
+    var logPriorityRange: ClosedRange<LogLevel>? { .allowFrom(min: .info) }
 
-    /// Create the log statement with a consistent design.
-    /// - Parameters:
-    ///   - level: The log level is responsible for the emoji displayed in the log statement.
-    ///   - message: The message is printed to the right of the log level emoji.
-    ///   - category: The category is printed to the left of the log level emoji.
     func createLog(_ level: LogLevel, message: String, category: LogCategory) {
-        print("\(prefix(level: level, category: category)) \(message)")
-    }
-
-    // MARK: Private Helpers
-
-    private var currentTimestamp: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        return formatter.string(from: Date())
-    }
-
-    private func prefix(level: LogLevel, category: LogCategory) -> String {
-        "\(currentTimestamp) \(category.truncatedOrPadded(to: 20)) \(level.emoji)"
+        // Send the statement to your backend
     }
 
 }
 ```
 
-## Integration
-
-When using PrettyLog you have basically two options:
-
-### Import everywhere
-
-Since you probably log throughout your app, importing PrettyLog in every single file might become cumbersome, but it's an option.
+Then add it to the list in your logging file:
 
 ```swift
-import Foundation
-import PrettyLog
-
-struct MyModel {
-    func doStuff() {
-        logV("Doing some stuff ...")
-    }
+private var logTargets: [LogTarget] {
+    [ConsoleLog(), BackendLog()]
 }
-```
-
-### Import once
-
-Another option is to create a Swift file somewhere in your app that serves as a proxy to PrettyLog. This enables you to import PrettyLog and define the log methods globally once.
-
-```swift
-import Foundation
-import PrettyLog
-
-// TODO: Decide, if you want to use logD or logX, logV or logS, as well as logI or logP below
-
-/// Log a statement with DEBUG level.
-/// - Parameters:
-///     - messages: One or more strings and string-convertible objects to include in the log statement
-///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `" - "`)
-///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logD(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
-}
-
-/// Log a statement with VERBOSE level.
-/// - Parameters:
-///     - messages: One or more strings and string-convertible objects to include in the log statement
-///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `" - "`)
-///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
-}
-
-/// Log a statement with INFO level.
-/// - Parameters:
-///     - messages: One or more strings and string-convertible objects to include in the log statement
-///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `" - "`)
-///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
-}
-
-/// Log a statement with WARNING level.
-/// - Parameters:
-///     - messages: One or more strings and string-convertible objects to include in the log statement
-///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `" - "`)
-///     - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logW(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
-}
-
-/// Log a statement with ERROR level.
-/// - Parameters:
-///   - messages: One or more strings and string-convertible objects to include in the log statement
-///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
-///   - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logE(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category)
-}
-
-/// Log a Key Event.
-/// - Parameters:
-///   - messages: One or more strings and string-convertible objects to include in the log statement
-///   - separator: The separator between messages (defaults to `" - "`)
-///   - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
-func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logK(messages, joinedBy: separator, category: category)
-}
-
-/// Log an `Error`.
-/// - Parameters:
-///   - error: The error to log
-///   - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `error` is `nil`.
-func log(_ error: Error?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(error, category: category)
-}
-
-/// Log a `NSException`.
-/// - Parameters:
-///   - exception: The exception to log
-///   - category: The category of the log statement (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `exception` is `nil`.
-func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(exception, category: category)
-}
-
-// TODO: Add custom global log methods if needed -> for example: if you have custom LogLevel and LogCategory `.todo`, you could define `logT for that.
-
-// /// Log a statement with TODO level.
-// /// - Parameters:
-// ///   - messages: One or more strings and string-convertible objects to include in the log statement
-// ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-// ///   - separator: The separator between messages (defaults to `" - "`)
-// /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-// public func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ") {
-//     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: .todo)
-// }
 ```
 
 ## Author

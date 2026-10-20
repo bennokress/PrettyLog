@@ -28,6 +28,17 @@ func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
     PrettyLogProxy.logX(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
 }
 
+/// Log a statement with VERBOSE level
+/// - Parameters:
+///   - messages: One or more strings and string-convertible objects to include in the log statement
+///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+///   - separator: The separator between messages (defaults to `" - "`)
+///   - category: The category of the log message (defaults to `.uncategorized`)
+/// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
+func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+    PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
+}
+
 /// Log a statement targeting Xcode and the Staging Environment (with VERBOSE level)
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
