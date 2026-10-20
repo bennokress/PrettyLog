@@ -20,7 +20,7 @@ dependencies: [
 
 ## Requirements
 
-- Xcode 16 / Swift 6.0 toolchain or later (`swift-tools-version: 6.0`)
+- Xcode 26 / Swift 6.2 toolchain or later (`swift-tools-version: 6.2`)
 - iOS 15, Mac Catalyst 15, macOS 12, tvOS 15 or watchOS 9 as deployment target
 
 ## Migrating from an earlier version

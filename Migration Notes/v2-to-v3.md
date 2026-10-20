@@ -6,7 +6,7 @@ Applies to every 3.x release.
 
 | | 2.x | 3.x |
 | --- | --- | --- |
-| swift-tools-version | 5.9 in 2.0.4 | 6.0 (Xcode 16 or later) |
+| swift-tools-version | 5.9 in 2.0.4 | 6.2 (Xcode 26 or later) |
 | Swift language modes | 5 and 6 | 5 and 6 |
 | iOS | 15 | 15 |
 | Mac Catalyst | 15 | 15 |
@@ -16,7 +16,7 @@ Applies to every 3.x release.
 
 ## Checklist
 
-- [ ] [Use Xcode 16 and raise watchOS to 9](#1-use-xcode-16-and-raise-watchos-to-9)
+- [ ] [Use Xcode 26 and raise watchOS to 9](#1-use-xcode-26-and-raise-watchos-to-9)
 - [ ] [Define your own log targets](#2-define-your-own-log-targets)
 - [ ] [Define your own log functions](#3-define-your-own-log-functions)
 - [ ] [Pass your targets to every `PrettyLogProxy` call](#4-pass-your-targets-to-every-prettylogproxy-call)
@@ -24,13 +24,13 @@ Applies to every 3.x release.
 
 ## Breaking changes
 
-### 1. Use Xcode 16 and raise watchOS to 9
+### 1. Use Xcode 26 and raise watchOS to 9
 
-**Affects you if** you build with a toolchain older than Swift 6.0, or your app supports watchOS 8.
+**Affects you if** you build with a toolchain older than Swift 6.2, or your app supports watchOS 8.
 
-**What changed:** The package manifest uses `swift-tools-version: 6.0`, and the minimum watchOS version is 9.
+**What changed:** The package manifest uses `swift-tools-version: 6.2`, and the minimum watchOS version is 9. Swift 6.2 is the first version that lets an app default to main actor isolation, and the setup in the README relies on `nonisolated` declarations that older toolchains don't fully support.
 
-**What to do:** Build with Xcode 16 or later. Raise the watchOS deployment target of every target that depends on PrettyLog to 9, or stay on PrettyLog 2.
+**What to do:** Build with Xcode 26 or later, which the App Store requires for uploads anyway. Raise the watchOS deployment target of every target that depends on PrettyLog to 9, or stay on PrettyLog 2.
 
 ### 2. Define your own log targets
 
