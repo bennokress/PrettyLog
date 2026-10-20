@@ -118,3 +118,8 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# A checkout of the project wiki is kept here, so that everything belonging to this
+# project sits together on disk. It is a repository of its own, with its own remote,
+# and it never becomes part of this one.
+Wiki/
