@@ -18,6 +18,11 @@ dependencies: [
 ]
 ```
 
+## Requirements
+
+- Xcode 16 / Swift 6.0 toolchain or later (`swift-tools-version: 6.0`)
+- iOS 15, Mac Catalyst 15, macOS 12, tvOS 15 or watchOS 9 as deployment target
+
 ## Migration Guide (v1 → v2)
 
 PrettyLog v2 introduces several new features while maintaining backward compatibility except for one small breaking change. Here's what's new and what you need to update:
@@ -40,14 +45,16 @@ All logging methods except `logK` now support an optional `sensitiveMessages` pa
 
 ```swift
 // Before (1.x)
-logI("Login", "User ID: \(userID), category: .user)
+logI("Login", "User ID: \(userID)", category: .user)
 
 // After (2.0) - with sensitive data support we could for example log the password to the console, but not in production
-logI("Login", "User ID: \(userID), sensitiveMessages: "Password: \(password)", category: .user)
+logI("Login", "User ID: \(userID)", sensitiveMessages: "Password: \(password)", category: .user)
 ```
 
-#### 3. Swift 6.1 Compatibility
-PrettyLog is now officially compatible with Swift 6.1.
+#### 3. Swift 6 Compatibility
+PrettyLog builds in the Swift 6 language mode and still supports the Swift 5 language mode for consumers.
+
+The package manifest now uses `swift-tools-version: 6.0`, so resolving the package needs Xcode 16 or a Swift 6.0 toolchain or later (see Requirements).
 
 ### Breaking Change
 
@@ -78,7 +85,7 @@ With PrettyLog you can make your print statements prettier and more useful. Just
 print("User tapped Continue Button")
 ```
 
-<img alt="Console Output with default print statement" src="https://www.dropbox.com/scl/fi/dgk54lv9ujsy6202eug0x/1-Basic-Usage-print.png?rlkey=rgftvpk2e7m3f85t7lpb62586&st=sx4dartt&raw=1" />
+<img alt="Console Output with default print statement" src="Assets/README/1-Basic-Usage-print.png" />
 
 ... with this:
 
@@ -86,7 +93,7 @@ print("User tapped Continue Button")
 logD("User tapped Continue Button")
 ```
 
-<img alt="Console Output with PrettyLog statement" src="https://www.dropbox.com/scl/fi/d5ew6983vwljrdynkuhet/2-Basic-Usage-logD.png?rlkey=6geqqu2cs7nladky1e38dgneb&st=ewszp8d3&raw=1" />
+<img alt="Console Output with PrettyLog statement" src="Assets/README/2-Basic-Usage-logD.png" />
 
 So far so good. You have a lot more options with PrettyLog though ...
 
@@ -102,11 +109,13 @@ logW("A warning log")
 logE("An error log")
 ```
 
-<img alt="Console Output of multiple PrettyLog statements with different Log Levels" src="https://www.dropbox.com/scl/fi/4q5hn09bkuuu8pk12ml98/3-Advanced-Usage-Levels.png?rlkey=e7i4eq9ndiu8b6qnbxsngv908&st=07wb1pgn&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements with different Log Levels" src="Assets/README/3-Advanced-Usage-Levels.png" />
 
 ### Semantic Log Levels
 
-Instead of Debug, Verbose and Info, you can also use Xcode, Staging and Production, as well as the new Key Event for Statistics Generation:
+Instead of Debug, Verbose and Info, you can also use Xcode, Staging and Production, as well as the new Key Event for Statistics Generation.
+
+Note that only `logX` and `logK` ship as global functions. `logS` and `logP` exist on `PrettyLogProxy` only, so define them as global functions in your own logging file (see <a href="#import-once">'Import once'</a>) to call them like below:
 
 ```swift
 logX("A log only to Xcode is basically a debug log")
@@ -116,7 +125,7 @@ logP("A log up to Production is basically an info log")
 logK("And this is a Key Event Log for statistics")
 ```
 
-<img alt="Console Output of multiple PrettyLog statements using Semantic Log Levels" src="https://www.dropbox.com/scl/fi/ju83pf96vetnen5ncfx04/4-Advanced-Usage-Semantic-Levels.png?rlkey=apzd1evjdm7tqp8bx3d1py7v1&st=njjfm3nq&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements using Semantic Log Levels" src="Assets/README/4-Advanced-Usage-Semantic-Levels.png" />
 
 ### Log Categories
 
@@ -128,7 +137,7 @@ logE("Username and Password did not match", category: .manager)
 logW("Or create your own Category ...", category: .custom("Announcement"))
 ```
 
-<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="https://www.dropbox.com/scl/fi/f72nox9eqn69z4702o66j/5-Log-Categories.png?rlkey=r6i181zo69bu3ohq5whus0tr7&st=wfhn51wv&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="Assets/README/5-Log-Categories.png" />
 
 ### Sensitive Data Logging
 
@@ -142,7 +151,7 @@ logE("Username and Password did not match", category: .manager)
 logW("Or create your own Category ...", category: .custom("Announcement"))
 ```
 
-<img alt="The same Log Statements as before, but the Token is now marked as sensitive data and can be sent to Production like that" src="https://www.dropbox.com/scl/fi/chwpeb6h1pxg3a1ihrnrj/6-Sensitive-Data.png?rlkey=tauy4kbqqv8kvxnfu4qxlct25&st=pgyezqwn&raw=1" />
+<img alt="The same Log Statements as before, but the Token is now marked as sensitive data and can be sent to Production like that" src="Assets/README/6-Sensitive-Data.png" />
 
 ### Log Message Concatenation
 
@@ -151,7 +160,7 @@ logV(service, "Got an API Response ...", category: .service)
 logW(screen, element, "Username too long", joinedBy: " → ", category: .manager)
 ```
 
-<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="https://www.dropbox.com/scl/fi/wjx70lu2abrumt4jzqc0m/7-Concatenation.png?rlkey=yjmnpdclplxnh8wbpapso5lcm&st=d20osoh0&raw=1" />
+<img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="Assets/README/7-Concatenation.png" />
 
 ### Errors and Exceptions
 
@@ -162,7 +171,7 @@ log(error, category: .service)
 log(exception, category: .service)
 ```
 
-<img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="https://www.dropbox.com/scl/fi/t0mx2xt4mxkawul0lbt7x/8-Errors-and-Exceptions.png?rlkey=bq5blrafu1ixw73vatxelh522&st=iulaollm&raw=1" />
+<img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="Assets/README/8-Errors-and-Exceptions.png" />
 
 ## Expert Usage
 
@@ -186,7 +195,7 @@ PrettyLog contains a few default Log Levels, but that doesn't mean that you are 
 ```swift
 extension LogLevel {
 
-    /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method though: `log("The login method is not yet implemented", category: .todo, as: .todo)
+    /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method of the proxy though: `PrettyLogProxy.log(["The login method is not yet implemented"], as: .todo, category: .todo)`
     static var todo: LogLevel { .custom(emoji: "🟣", priority: 200) }
 
 }
@@ -199,7 +208,7 @@ If you want to use your custom Log Level in line with all the predefined ones, y
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements.
 public func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ") {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: .todo)
@@ -284,7 +293,7 @@ import PrettyLog
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -295,7 +304,7 @@ func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -306,7 +315,7 @@ func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -317,7 +326,7 @@ func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -328,7 +337,7 @@ func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `-`)
+///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -338,7 +347,7 @@ func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// Log a Key Event.
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
-///   - separator: The separator between messages (defaults to `-`)
+///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
 func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -369,7 +378,7 @@ func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
 // /// - Parameters:
 // ///   - messages: One or more strings and string-convertible objects to include in the log statement
 // ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-// ///   - separator: The separator between messages (defaults to `-`)
+// ///   - separator: The separator between messages (defaults to `" - "`)
 // /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 // public func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ") {
 //     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: .todo)

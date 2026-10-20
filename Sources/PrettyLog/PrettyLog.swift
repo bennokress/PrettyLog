@@ -9,7 +9,7 @@ import Foundation
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 ///     - targets: The targets this log statement is sent to (defaults to the Xcode console only)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
@@ -21,7 +21,7 @@ public func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 ///     - targets: The targets this log statement is sent to (defaults to the Xcode console only)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
@@ -33,7 +33,7 @@ public func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 ///     - targets: The targets this log statement is sent to (defaults to the Xcode console only)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
@@ -45,7 +45,7 @@ public func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 ///     - targets: The targets this log statement is sent to (defaults to the Xcode console only)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
@@ -57,7 +57,7 @@ public func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 ///     - targets: The targets this log statement is sent to (defaults to the Xcode console only)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
@@ -69,7 +69,7 @@ public func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 ///     - targets: The targets this log statement is sent to (defaults to the Xcode console only)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
@@ -80,7 +80,7 @@ public func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy
 /// Log a Key Event
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
-///     - separator: The separator between messages (defaults to `-`)
+///     - separator: The separator between messages (defaults to `" - "`)
 ///     - category: The category of the log message (defaults to `.uncategorized`)
 ///     - targets: The targets this log statement is sent to (defaults to the Xcode console only)
 /// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!

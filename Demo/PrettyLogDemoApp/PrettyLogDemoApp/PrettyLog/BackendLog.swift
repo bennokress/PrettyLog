@@ -13,8 +13,8 @@ struct BackendLog: LogTarget {
     // MARK: - Properties
     
     /// Backend log targets should not log sensitive information for security
-    var canLogSensitiveInformation: Bool { false }
-    
+    let canLogSensitiveInformation = false
+
     /// Only log INFO level and above to reduce server load
     var logPriorityRange: ClosedRange<LogLevel>? { .allowFrom(min: .info) }
     
