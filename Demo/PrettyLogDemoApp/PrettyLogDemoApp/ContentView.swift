@@ -66,7 +66,7 @@ struct ContentView: View {
                 TextField("Sensitive Message 1 (optional)", text: $sensitiveMessage1)
                 TextField("Sensitive Message 2 (optional)", text: $sensitiveMessage2)
                 
-                Text("⚠️ Sensitive messages are only sent to console logs, not to backend servers for security reasons.")
+                Text("⚠️ Sensitive messages are only printed to the console in debug builds and never sent to the backend.")
                     .font(.caption)
                     .foregroundColor(.orange)
             }
