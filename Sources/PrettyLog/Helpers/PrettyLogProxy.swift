@@ -13,12 +13,13 @@ import Foundation
 ///
 ///     import PrettyLog
 ///
-///     func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+///     nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
 ///         PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: [ConsoleLog(), BackendLog()])
 ///     }
 ///
-/// `ConsoleLog` and `BackendLog` stand for targets your app defines itself by conforming to `LogTarget`. A complete file with a console target, every log function
-/// and a custom level is in the README under "Setup".
+/// `ConsoleLog` and `BackendLog` stand for targets your app defines itself by conforming to `LogTarget`. Declare the functions and the targets `nonisolated`:
+/// in an app whose default actor isolation is the main actor they would otherwise only be usable on the main actor. A complete file with a console target,
+/// every log function and a custom level is in the README under "Setup".
 public struct PrettyLogProxy {
 
     /// Log a statement with DEBUG level.

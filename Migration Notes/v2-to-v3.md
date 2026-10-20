@@ -38,7 +38,7 @@ Applies to every 3.x release.
 
 **What changed:** PrettyLog ships no log target anymore. `ConsoleLog` included sensitive messages in every build, so an app that relied on it printed sensitive data to stdout in release builds too. A package can't know where an app may send sensitive data, so every app now defines its targets itself.
 
-**What to do:** Write your own target that conforms to `LogTarget`. The README shows a console target under "Setup" that prints the same format as `ConsoleLog` did and includes sensitive messages only in debug builds. If you name it `ConsoleLog`, existing references such as `[ConsoleLog(), BackendLog()]` keep compiling.
+**What to do:** Write your own target that conforms to `LogTarget`. The README shows a console target under "Setup" that prints the same format as `ConsoleLog` did and includes sensitive messages only in debug builds. If you name it `ConsoleLog`, existing references such as `[ConsoleLog(), BackendLog()]` keep compiling. If your app makes the main actor its default isolation, which new Xcode projects do, the type has to be `nonisolated`, as in the sample below. Otherwise you can only log from the main actor. The README explains this under "Setup".
 
 ```swift
 // Before (2.x): ConsoleLog came from PrettyLog
@@ -47,7 +47,7 @@ import PrettyLog
 PrettyLogProxy.logI(messages, to: [ConsoleLog()])
 
 // After (3.x): ConsoleLog is a type in your app
-struct ConsoleLog: LogTarget {
+nonisolated struct ConsoleLog: LogTarget {
 
     var canLogSensitiveInformation: Bool { isDebugApp }
 
@@ -62,7 +62,7 @@ struct ConsoleLog: LogTarget {
 
 **What changed:** PrettyLog has no global log functions anymore. `PrettyLogProxy` is the only entry point.
 
-**What to do:** Add one file to your app that defines the log functions you use and the list of targets they send to. The README has a complete file under "Setup". Your call sites stay the same, and the other files no longer need `import PrettyLog`. If you already have such a file, only step 4 applies to you.
+**What to do:** Add one file to your app that defines the log functions you use and the list of targets they send to. The README has a complete file under "Setup". Your call sites stay the same, and the other files no longer need `import PrettyLog`. If you already have such a file, only step 4 applies to you. Mark the functions and the list of targets `nonisolated`, as in the sample below. In an app whose default isolation is the main actor they would otherwise only be callable from the main actor; in other apps the keyword changes nothing.
 
 ```swift
 // Before (2.x): any file
@@ -73,11 +73,11 @@ logI("User tapped Continue Button", category: .user)
 // After (3.x): your logging file
 import PrettyLog
 
-func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
 }
 
-private var logTargets: [LogTarget] {
+nonisolated private var logTargets: [LogTarget] {
     [ConsoleLog()]
 }
 
