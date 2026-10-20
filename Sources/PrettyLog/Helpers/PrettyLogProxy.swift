@@ -118,18 +118,24 @@ public struct PrettyLogProxy {
     }
 
     /// Log an `Error`.
+    ///
+    /// The `localizedDescription` is logged as the public part. The full description of the error is logged as sensitive part, because it contains the `userInfo` of an `NSError`,
+    /// the complete URL of a `URLError` and every associated value of a custom error enum. Targets that can't log sensitive information only receive the `localizedDescription`.
     /// - Parameters:
     ///   - error: The error to log
     ///   - level: The level to log with (defaults to `.error`)
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     /// - Attention: No log will be created, if `error` is `nil`.
     public static func log(_ error: Error?, as level: LogLevel = .error, category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
-        guard let error = error else { return }
-        let assembler = LogStatementAssembler(message: "\(error.localizedDescription) (\(error))")
+        guard let error else { return }
+        let assembler = LogStatementAssembler(message: error.localizedDescription, sensitiveMessage: "\(error)")
         log(level, statementAssembler: assembler, category: category, to: targets)
     }
 
     /// Log a `NSException`.
+    ///
+    /// The `name` of the exception is logged as the public part. Its `reason` and `userInfo` are free text that can contain anything, so they are logged as sensitive part.
+    /// Targets that can't log sensitive information only receive the `name`.
     /// - Parameters:
     ///   - exception: The exception to log
     ///   - level: The level to log with (defaults to `.error`)
@@ -137,7 +143,8 @@ public struct PrettyLogProxy {
     /// - Attention: No log will be created, if `exception` is `nil`.
     public static func log(_ exception: NSException?, as level: LogLevel = .error, category: LogCategory = .uncategorized, to targets: [LogTarget] = [ConsoleLog()]) {
         guard let exception else { return }
-        let assembler = LogStatementAssembler(message: exception.description)
+        let userInfo = exception.userInfo.map { "\($0)" }
+        let assembler = LogStatementAssembler(messages: [exception.name.rawValue], sensitiveMessages: [exception.reason, userInfo])
         log(level, statementAssembler: assembler, category: category, to: targets)
     }
 

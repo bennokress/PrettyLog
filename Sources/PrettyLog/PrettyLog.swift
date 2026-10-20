@@ -89,6 +89,8 @@ public func logK(_ messages: String?..., joinedBy separator: String = " - ", cat
 }
 
 /// Log an `Error` with ERROR level.
+///
+/// Targets that can't log sensitive information only receive the `localizedDescription`. The full description of the error is treated as sensitive.
 /// - Parameters:
 ///     - error: The error to log
 ///     - level: The level to log with (defaults to `.error`)
@@ -100,6 +102,8 @@ public func log(_ error: Error?, as level: LogLevel = .error, category: LogCateg
 }
 
 /// Log a `NSException` with ERROR level.
+///
+/// Targets that can't log sensitive information only receive the `name`. The `reason` and `userInfo` of the exception are treated as sensitive.
 /// - Parameters:
 ///     - exception: The exception to log
 ///     - level: The level to log with (defaults to `.error`)
