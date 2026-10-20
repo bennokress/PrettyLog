@@ -113,3 +113,11 @@ PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: se
 | `NSException` | the `description` of the exception | `name - reason - userInfo` | `name` |
 
 **What to do:** Adjust anything that parses these statements. If a target really needs the details, it has to allow sensitive data.
+
+## New and optional
+
+### `LogLevel` and `LogCategory` are `Sendable`
+
+You can now keep levels and categories in a `static let` or pass them into a `Task` in the Swift 6 language mode, including your own custom levels and categories. Nothing to change.
+
+`LogTarget` still doesn't require `Sendable`, so your existing targets keep compiling. If you want to keep your targets in a `static let` or hand them across isolation boundaries, make your target types `Sendable` yourself, see "Keeping Targets in a Constant" in the README.

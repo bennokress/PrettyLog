@@ -351,6 +351,16 @@ private var logTargets: [LogTarget] {
 }
 ```
 
+### Keeping Targets in a Constant
+
+`LogTarget` doesn't require `Sendable`, so a target can be any type, including a class with mutable state. The computed `logTargets` above creates the targets on every call and works with any of them. If you would rather create them once and keep them in a constant, the Swift 6 language mode requires the constant to be `Sendable`. Make your target types `Sendable` and declare the list like this:
+
+```swift
+private let logTargets: [any LogTarget & Sendable] = [ConsoleLog(), BackendLog()]
+```
+
+Structs whose stored properties are all `Sendable` get the conformance automatically, as long as they aren't `public`. A class needs to be `final` and protect its mutable state itself, for example with a lock.
+
 ## Author
 
 👨🏻‍💻 **Benno Kress**

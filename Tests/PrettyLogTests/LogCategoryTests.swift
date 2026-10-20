@@ -62,3 +62,10 @@ func logCategoryLongCustomName() {
     #expect(truncated == "This is a…")
     #expect(truncated.count == 10)
 }
+
+@Test
+func logCategoryIsSendable() {
+    // Compiles only while LogCategory conforms to Sendable, which consumers need to store categories in a `static let` or pass them into a `Task`.
+    let categories: [any Sendable] = [LogCategory.user, LogCategory.custom("To Do")]
+    #expect(categories.count == 2)
+}

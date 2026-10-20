@@ -100,3 +100,10 @@ func logLevelRangeAllowUntil() {
     #expect(!range!.contains(.error))
     #expect(!range!.contains(.keyEvent))
 }
+
+@Test
+func logLevelIsSendable() {
+    // Compiles only while LogLevel conforms to Sendable, which consumers need to store levels in a `static let` or pass them into a `Task`.
+    let levels: [any Sendable] = [LogLevel.debug, LogLevel.custom(emoji: "🟣", priority: 200)]
+    #expect(levels.count == 2)
+}
