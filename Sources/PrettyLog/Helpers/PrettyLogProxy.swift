@@ -22,6 +22,9 @@ import Foundation
 /// a console target and every log function is in the README under "Setup".
 public struct PrettyLogProxy {
 
+    /// The proxy is only a namespace for its static `log` functions, so an instance would mean nothing.
+    private init() { }
+
     /// Log an `Error`.
     ///
     /// The public part is the `localizedDescription` of a `LocalizedError` or an `NSError`, including the bridged ones like `URLError` and `CocoaError`. For any other error
