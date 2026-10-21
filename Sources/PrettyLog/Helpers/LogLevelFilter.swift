@@ -3,98 +3,54 @@
 // 👨🏼‍💻 Author: Benno Kress
 //
 
+// PROTOTYPE (#71): the filter is generic over the app's level type and compares levels, not priorities.
+
 import Foundation
 
-/// The Log Level Filter decides which Log Levels a Log Target accepts. A log statement with a level outside the filter never reaches the target.
-///
-///     struct BackendLog: LogTarget {
-///
-///         var levelFilter: LogLevelFilter { .fromPriority(of: .info) }
-///
-///         // …
-///
-///     }
-///
-/// The filter compares priorities only. Two levels with the same priority count as the same level, so a filter that accepts one of them accepts the other too, whatever their emoji.
-public struct LogLevelFilter: Sendable, Equatable {
+public struct LogLevelFilter<Level: LogLevel>: Sendable, Equatable {
 
-    private let acceptedPriorities: AcceptedPriorities
+    private let accepted: Accepted
 
-    /// Accepts every Log Level. This is the default of every Log Target.
-    public static var all: LogLevelFilter { LogLevelFilter(acceptedPriorities: .range(.min ... .max)) }
+    public static var all: LogLevelFilter { LogLevelFilter(accepted: .everything) }
 
-    /// Accepts no Log Level, e.g. when log statements require approval by the user to be sent to a server.
-    public static var none: LogLevelFilter { LogLevelFilter(acceptedPriorities: .nothing) }
+    public static var none: LogLevelFilter { LogLevelFilter(accepted: .nothing) }
 
-    /// Accepts every Log Level with the priority of one of the given levels, e.g. to send only key events to an analytics service.
-    ///
-    /// Without any level, the filter accepts nothing, like ``none``.
-    /// - Attention: A level with the same priority as one of the given levels is accepted as well, whatever its emoji. Give every level of your app its own priority.
-    /// - Parameter levels: The Log Levels whose priorities the target accepts.
-    public static func onlyPriority(of levels: LogLevel...) -> LogLevelFilter {
-        let priorities = Set(levels.map(\.priority))
-        // A single priority is stored as a range, so `.onlyPriority(of: .info)` equals `.betweenPriority(of: .info, and: .info)`.
-        let acceptedPriorities: AcceptedPriorities = if priorities.isEmpty {
-            .nothing
-        } else if priorities.count == 1, let priority = priorities.first {
-            .range(priority ... priority)
-        } else {
-            .set(priorities)
-        }
-        return LogLevelFilter(acceptedPriorities: acceptedPriorities)
+    /// Accepts exactly the given levels, e.g. `.only(.keyEvent, .error)`.
+    public static func only(_ levels: Level...) -> LogLevelFilter {
+        LogLevelFilter(accepted: levels.isEmpty ? .nothing : .set(Set(levels)))
     }
 
-    /// Accepts every Log Level with the priority of the given level or a higher one, e.g. to leave out debug statements when logging to a server.
-    /// - Attention: A level with the same priority as the given level is accepted as well, whatever its emoji. Give every level of your app its own priority.
-    /// - Parameter level: The level with the lowest priority the target accepts.
-    public static func fromPriority(of level: LogLevel) -> LogLevelFilter {
-        LogLevelFilter(acceptedPriorities: .range(level.priority ... .max))
+    public static func from(_ level: Level) -> LogLevelFilter {
+        LogLevelFilter(accepted: .from(level))
     }
 
-    /// Accepts every Log Level with the priority of the given level or a lower one, e.g. to concentrate on debug statements when logging to the console.
-    /// - Attention: A level with the same priority as the given level is accepted as well, whatever its emoji. Give every level of your app its own priority.
-    /// - Parameter level: The level with the highest priority the target accepts.
-    public static func untilPriority(of level: LogLevel) -> LogLevelFilter {
-        LogLevelFilter(acceptedPriorities: .range(.min ... level.priority))
+    public static func until(_ level: Level) -> LogLevelFilter {
+        LogLevelFilter(accepted: .until(level))
     }
 
-    /// Accepts every Log Level with a priority between the priorities of the given levels, both included.
-    ///
-    /// The order of the two levels does not matter: `.betweenPriority(of: .warning, and: .debug)` accepts the same levels as `.betweenPriority(of: .debug, and: .warning)`.
-    /// - Attention: A level with the same priority as one of the given levels is accepted as well, whatever its emoji. Give every level of your app its own priority.
-    /// - Parameters:
-    ///   - firstLevel: The level whose priority is one bound of the accepted priorities.
-    ///   - secondLevel: The level whose priority is the other bound of the accepted priorities.
-    public static func betweenPriority(of firstLevel: LogLevel, and secondLevel: LogLevel) -> LogLevelFilter {
-        let lowerPriority = min(firstLevel.priority, secondLevel.priority)
-        let upperPriority = max(firstLevel.priority, secondLevel.priority)
-        return LogLevelFilter(acceptedPriorities: .range(lowerPriority ... upperPriority))
+    public static func between(_ firstLevel: Level, and secondLevel: Level) -> LogLevelFilter {
+        LogLevelFilter(accepted: .range(min(firstLevel, secondLevel) ... max(firstLevel, secondLevel)))
     }
 
-    /// Returns whether the filter accepts the given Log Level.
-    /// - Parameter level: The Log Level of a log statement.
-    public func contains(_ level: LogLevel) -> Bool {
-        switch acceptedPriorities {
-        case .nothing:
-            false
-        case let .range(range):
-            range.contains(level.priority)
-        case let .set(set):
-            set.contains(level.priority)
+    public func contains(_ level: Level) -> Bool {
+        switch accepted {
+        case .everything: true
+        case .nothing: false
+        case let .from(lowest): level >= lowest
+        case let .until(highest): level <= highest
+        case let .range(range): range.contains(level)
+        case let .set(set): set.contains(level)
         }
     }
 
-}
-
-private extension LogLevelFilter {
-
-    // A `ClosedRange` cannot be empty, so accepting nothing needs its own case.
-    enum AcceptedPriorities: Sendable, Equatable {
-
+    // There is no `.min` / `.max` for an arbitrary level type, so open ranges need their own cases.
+    private enum Accepted: Sendable, Equatable {
+        case everything
         case nothing
-        case range(ClosedRange<Int>)
-        case set(Set<Int>)
-
+        case from(Level)
+        case until(Level)
+        case range(ClosedRange<Level>)
+        case set(Set<Level>)
     }
 
 }
