@@ -5,24 +5,24 @@
 
 import PrettyLog
 
-// The order of the cases is the order of the levels: `.keyEvent` is the highest because it comes last.
-nonisolated enum AppLogLevel: LogLevel, CaseIterable {
+// Sorted alphabetically. The raw value is the priority, the order of the cases means nothing.
+nonisolated enum AppLogLevel: Int, LogLevel, CaseIterable {
 
-    case debug
-    case verbose
-    case info
-    case warning
-    case error
-    case keyEvent
+    case debug = 100
+    case error = 900
+    case info = 500
+    case keyEvent = 1000
+    case verbose = 300
+    case warning = 700
 
     var emoji: String {
         switch self {
         case .debug: "🟤"
-        case .verbose: "🔵"
-        case .info: "🟢"
-        case .warning: "🟡"
         case .error: "🔴"
+        case .info: "🟢"
         case .keyEvent: "📊"
+        case .verbose: "🔵"
+        case .warning: "🟡"
         }
     }
 

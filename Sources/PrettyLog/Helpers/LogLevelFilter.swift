@@ -3,54 +3,49 @@
 // 👨🏼‍💻 Author: Benno Kress
 //
 
-// PROTOTYPE (#71): the filter is generic over the app's level type and compares levels, not priorities.
+// PROTOTYPE (#71): the filter is generic over the app's level type and compares priorities, as on feature/api.
 
 import Foundation
 
 public struct LogLevelFilter<Level: LogLevel>: Sendable, Equatable {
 
-    private let accepted: Accepted
+    private let acceptedPriorities: AcceptedPriorities
 
-    public static var all: LogLevelFilter { LogLevelFilter(accepted: .everything) }
+    public static var all: LogLevelFilter { LogLevelFilter(acceptedPriorities: .range(.min ... .max)) }
 
-    public static var none: LogLevelFilter { LogLevelFilter(accepted: .nothing) }
+    public static var none: LogLevelFilter { LogLevelFilter(acceptedPriorities: .nothing) }
 
     /// Accepts exactly the given levels, e.g. `.only(.keyEvent, .error)`.
     public static func only(_ levels: Level...) -> LogLevelFilter {
-        LogLevelFilter(accepted: levels.isEmpty ? .nothing : .set(Set(levels)))
+        LogLevelFilter(acceptedPriorities: levels.isEmpty ? .nothing : .set(Set(levels.map(\.priority))))
     }
 
     public static func from(_ level: Level) -> LogLevelFilter {
-        LogLevelFilter(accepted: .from(level))
+        LogLevelFilter(acceptedPriorities: .range(level.priority ... .max))
     }
 
     public static func until(_ level: Level) -> LogLevelFilter {
-        LogLevelFilter(accepted: .until(level))
+        LogLevelFilter(acceptedPriorities: .range(.min ... level.priority))
     }
 
     public static func between(_ firstLevel: Level, and secondLevel: Level) -> LogLevelFilter {
-        LogLevelFilter(accepted: .range(min(firstLevel, secondLevel) ... max(firstLevel, secondLevel)))
+        let lowerPriority = min(firstLevel.priority, secondLevel.priority)
+        let upperPriority = max(firstLevel.priority, secondLevel.priority)
+        return LogLevelFilter(acceptedPriorities: .range(lowerPriority ... upperPriority))
     }
 
     public func contains(_ level: Level) -> Bool {
-        switch accepted {
-        case .everything: true
+        switch acceptedPriorities {
         case .nothing: false
-        case let .from(lowest): level >= lowest
-        case let .until(highest): level <= highest
-        case let .range(range): range.contains(level)
-        case let .set(set): set.contains(level)
+        case let .range(range): range.contains(level.priority)
+        case let .set(set): set.contains(level.priority)
         }
     }
 
-    // There is no `.min` / `.max` for an arbitrary level type, so open ranges need their own cases.
-    private enum Accepted: Sendable, Equatable {
-        case everything
+    private enum AcceptedPriorities: Sendable, Equatable {
         case nothing
-        case from(Level)
-        case until(Level)
-        case range(ClosedRange<Level>)
-        case set(Set<Level>)
+        case range(ClosedRange<Int>)
+        case set(Set<Int>)
     }
 
 }

@@ -58,4 +58,17 @@ struct LoggingTests {
         #expect(Console().levelFilter.contains(level))
     }
 
+    @Test func betweenUsesPrioritiesNotCaseOrder() {
+        let filter = LogLevelFilter<AppLogLevel>.between(.warning, and: .info)
+        #expect(filter.contains(.info))
+        #expect(filter.contains(.warning))
+        #expect(!filter.contains(.verbose))
+        #expect(!filter.contains(.error))
+    }
+
+    @Test func onlyAcceptsExactlyTheGivenLevels() {
+        let filter = LogLevelFilter<AppLogLevel>.only(.keyEvent, .error)
+        #expect(AppLogLevel.allCases.filter(filter.contains) == [.error, .keyEvent])
+    }
+
 }

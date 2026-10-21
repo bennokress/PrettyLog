@@ -8,10 +8,10 @@
 import Foundation
 import PrettyLog
 
-enum Swift5LogLevel: LogLevel {
+enum Swift5LogLevel: Int, LogLevel {
 
-    case debug
-    case error
+    case debug = 100
+    case error = 900
 
     var emoji: String {
         switch self {

@@ -10,32 +10,32 @@ import OSLog
 import PrettyLog
 import SharedLogTargets
 
-nonisolated enum OtherAppLogLevel: LogLevel, OSLogMappable {
+nonisolated enum OtherAppLogLevel: Int, LogLevel, OSLogMappable {
 
-    case xcode
-    case staging
-    case production
-    case warning
-    case error
+    case error = 900
+    case production = 500
+    case staging = 300
+    case warning = 700
+    case xcode = 100
 
     var emoji: String {
         switch self {
-        case .xcode: "🟤"
-        case .staging: "🔵"
-        case .production: "🟢"
-        case .warning: "🟡"
         case .error: "🔴"
+        case .production: "🟢"
+        case .staging: "🔵"
+        case .warning: "🟡"
+        case .xcode: "🟤"
         }
     }
 
     // The exhaustive mapping lives with the levels, not in the target.
     var osLogType: OSLogType {
         switch self {
-        case .xcode: .debug
-        case .staging: .default
-        case .production: .info
-        case .warning: .error
         case .error: .fault
+        case .production: .info
+        case .staging: .default
+        case .warning: .error
+        case .xcode: .debug
         }
     }
 
