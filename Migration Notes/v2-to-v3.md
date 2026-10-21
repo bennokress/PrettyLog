@@ -169,8 +169,11 @@ PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: sep
 
 | | 2.x | 3.x, target may receive sensitive data | 3.x, target may not |
 | --- | --- | --- | --- |
-| `Error` | `localizedDescription (full description)` | `localizedDescription - full description` | `localizedDescription` |
+| `LocalizedError`, `NSError`, `URLError`, `CocoaError` | `localizedDescription (full description)` | `localizedDescription - full description` | `localizedDescription` |
+| any other `Error` | `localizedDescription (full description)` | `TypeName - full description` | `TypeName` |
 | `NSException` | the `description` of the exception | `name - reason - userInfo` | `name` |
+
+For an error that is neither a `LocalizedError` nor an `NSError`, Foundation's `localizedDescription` is only "The operation couldn't be completed." with the module, the type and a case number, so 3.x logs the name of the type instead. An `enum NetworkError: Error` thrown as `.notFound` now reads `NetworkError - notFound`, or `NetworkError` for a target that may not receive sensitive data.
 
 **What to do:** Adjust anything that parses these statements. If a target really needs the details, it has to allow sensitive data.
 

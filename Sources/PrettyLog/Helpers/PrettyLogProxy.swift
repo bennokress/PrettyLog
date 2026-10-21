@@ -24,8 +24,10 @@ public struct PrettyLogProxy {
 
     /// Log an `Error`.
     ///
-    /// The `localizedDescription` is logged as the public part. The full description of the error is logged as sensitive part, because it contains the `userInfo` of an `NSError`,
-    /// the complete URL of a `URLError` and every associated value of a custom error enum. Targets that can't log sensitive information only receive the `localizedDescription`.
+    /// The public part is the `localizedDescription` of a `LocalizedError` or an `NSError`, including the bridged ones like `URLError` and `CocoaError`. For any other error
+    /// it is the name of its type, because Foundation would only produce "The operation couldn't be completed." with the module, the type and a case number that doesn't
+    /// match the order in the source. The full description of the error is logged as sensitive part, because it contains the `userInfo` of an `NSError`,
+    /// the complete URL of a `URLError` and every associated value of a custom error enum. Targets that can't log sensitive information only receive the public part.
     /// - Parameters:
     ///   - error: The error to log
     ///   - level: The level to log with
@@ -34,8 +36,14 @@ public struct PrettyLogProxy {
     /// - Attention: No log will be created, if `error` is `nil`.
     public static func log(_ error: Error?, as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
         guard let error else { return }
-        let assembler = LogStatementAssembler(message: error.localizedDescription, sensitiveMessage: "\(error)")
+        let assembler = LogStatementAssembler(message: publicDescription(of: error), sensitiveMessage: "\(error)")
         log(level, statementAssembler: assembler, category: category, to: targets)
+    }
+
+    /// The part of an error that any target may receive.
+    private static func publicDescription(of error: Error) -> String {
+        guard error is LocalizedError || type(of: error) is NSError.Type else { return String(describing: type(of: error)) }
+        return error.localizedDescription
     }
 
     /// Log a `NSException`.

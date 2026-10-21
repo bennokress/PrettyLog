@@ -158,6 +158,64 @@ func prettyLogProxyLogEnumErrorHidesAssociatedValuesFromTargetWithoutSensitiveIn
 }
 
 @Test
+func prettyLogProxyLogPlainSwiftErrorUsesTypeNameAsPublicPart() {
+    enum NetworkError: Error {
+        case notFound
+    }
+    let mockTarget = MockLogTarget()
+    mockTarget.canLogSensitiveInformation = false
+
+    PrettyLogProxy.log(NetworkError.notFound, as: .error, category: .user, to: [mockTarget])
+
+    #expect(mockTarget.capturedLogs.count == 1)
+    #expect(mockTarget.capturedLogs[0].1 == "NetworkError")
+}
+
+@Test
+func prettyLogProxyLogPlainSwiftErrorShowsCaseToTargetWithSensitiveInformation() {
+    enum NetworkError: Error {
+        case notFound
+    }
+    let mockTarget = MockLogTarget()
+
+    PrettyLogProxy.log(NetworkError.notFound, as: .error, category: .user, to: [mockTarget])
+
+    #expect(mockTarget.capturedLogs.count == 1)
+    #expect(mockTarget.capturedLogs[0].1 == "NetworkError - notFound")
+}
+
+@Test
+func prettyLogProxyLogLocalizedErrorUsesItsDescriptionAsPublicPart() {
+    enum ReadableError: LocalizedError {
+
+        case missingFile
+
+        var errorDescription: String? { "The file is missing." }
+
+    }
+
+    let mockTarget = MockLogTarget()
+    mockTarget.canLogSensitiveInformation = false
+
+    PrettyLogProxy.log(ReadableError.missingFile, as: .error, category: .user, to: [mockTarget])
+
+    #expect(mockTarget.capturedLogs.count == 1)
+    #expect(mockTarget.capturedLogs[0].1 == "The file is missing.")
+}
+
+@Test
+func prettyLogProxyLogBridgedFoundationErrorUsesLocalizedDescriptionAsPublicPart() {
+    let mockTarget = MockLogTarget()
+    mockTarget.canLogSensitiveInformation = false
+    let error = CocoaError(.fileNoSuchFile)
+
+    PrettyLogProxy.log(error, as: .error, category: .user, to: [mockTarget])
+
+    #expect(mockTarget.capturedLogs.count == 1)
+    #expect(mockTarget.capturedLogs[0].1 == error.localizedDescription)
+}
+
+@Test
 func prettyLogProxyLogExceptionHidesReasonAndUserInfoFromTargetWithoutSensitiveInformation() {
     let mockTarget = MockLogTarget()
     mockTarget.canLogSensitiveInformation = false
