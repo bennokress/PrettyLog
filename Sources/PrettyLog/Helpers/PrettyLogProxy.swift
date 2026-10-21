@@ -13,7 +13,7 @@ import Foundation
 ///
 ///     import PrettyLog
 ///
-///     nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+///     nonisolated func logI(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
 ///         PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: [ConsoleLog(), BackendLog()])
 ///     }
 ///
@@ -65,15 +65,15 @@ public struct PrettyLogProxy {
 
     /// Log a statement with any level.
     /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
+    ///   - messages: One or more strings and string-convertible objects to include in the log statement, each written as its `description`
+    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content, each written as its `description`
     ///   - separator: The separator between messages (defaults to `" - "`)
     ///   - level: The level to log with
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
     /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func log(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        let assembler = LogStatementAssembler(messages: messages, sensitiveMessages: sensitiveMessages, separator: separator)
+    public static func log(_ messages: [(any CustomStringConvertible)?], sensitiveMessages: [(any CustomStringConvertible)?] = [], joinedBy separator: String = " - ", as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
+        let assembler = LogStatementAssembler(messages: messages.map { $0?.description }, sensitiveMessages: sensitiveMessages.map { $0?.description }, separator: separator)
         log(level, statementAssembler: assembler, category: category, to: targets)
     }
 

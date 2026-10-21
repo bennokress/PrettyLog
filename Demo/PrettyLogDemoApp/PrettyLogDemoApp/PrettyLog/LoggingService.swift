@@ -48,7 +48,7 @@ extension LogCategory {
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logX(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .debug, category: category, to: defaultTargets)
 }
 
@@ -59,7 +59,7 @@ func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logV(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: defaultTargets)
 }
 
@@ -70,7 +70,7 @@ func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logS(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logS(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: defaultTargets)
 }
 
@@ -81,7 +81,7 @@ func logS(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logP(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logP(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: defaultTargets)
 }
 
@@ -92,7 +92,7 @@ func logP(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logW(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .warning, category: category, to: defaultTargets)
 }
 
@@ -103,7 +103,7 @@ func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logE(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .error, category: category, to: defaultTargets)
 }
 
@@ -113,7 +113,7 @@ func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
-func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logK(_ messages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, joinedBy: separator, as: .keyEvent, category: category, to: defaultTargets)
 }
 
@@ -124,7 +124,7 @@ func logK(_ messages: String?..., joinedBy separator: String = " - ", category: 
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logT(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: category, to: defaultTargets)
 }
 

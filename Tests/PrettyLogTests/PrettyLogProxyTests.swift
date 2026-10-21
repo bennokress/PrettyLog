@@ -298,3 +298,28 @@ func prettyLogProxyWithoutTargetsLogsNothingAndDoesNotCrash() {
 
     #expect(noTargets.isEmpty)
 }
+
+@Test
+func prettyLogProxyWritesNonStringMessagesAsTheirDescription() throws {
+    let mockTarget = MockLogTarget()
+    let missingCount: Int? = nil
+    let url = try #require(URL(string: "https://example.com/items"))
+
+    PrettyLogProxy.log(["Loaded", 3, missingCount, url], sensitiveMessages: [4.5], as: .info, category: .debug, to: [mockTarget])
+
+    #expect(mockTarget.capturedLogs.count == 1)
+    #expect(mockTarget.capturedLogs[0].1 == "Loaded - 3 - https://example.com/items - 4.5")
+}
+
+/// Log functions in apps were declared with `String?...` before the proxy took `CustomStringConvertible`, so an array of optional strings has to keep compiling.
+@Test
+func prettyLogProxyStillAcceptsOptionalStrings() {
+    let mockTarget = MockLogTarget()
+    let messages: [String?] = ["Test", nil, "Message"]
+    let sensitiveMessages: [String?] = ["Secret"]
+
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, as: .info, category: .debug, to: [mockTarget])
+
+    #expect(mockTarget.capturedLogs.count == 1)
+    #expect(mockTarget.capturedLogs[0].1 == "Test - Message - Secret")
+}

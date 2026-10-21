@@ -172,7 +172,7 @@ logI("User tapped Continue Button", category: .user)
 // After (3.x): your logging file
 import PrettyLog
 
-nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+nonisolated func logI(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: logTargets)
 }
 
@@ -223,3 +223,17 @@ For an error that is neither a `LocalizedError` nor an `NSError`, Foundation's `
 You can now keep levels and categories in a `static let` or pass them into a `Task` in the Swift 6 language mode, including the levels and categories your app defines. Nothing to change.
 
 `LogTarget` still doesn't require `Sendable`, so your existing targets keep compiling. If you want to keep your targets in a `static let` or hand them across isolation boundaries, make your target types `Sendable` yourself, see "Keeping Targets in a Constant" in the README.
+
+### Messages can be any `CustomStringConvertible`
+
+`PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)` now takes `[(any CustomStringConvertible)?]` instead of `[String?]`, so numbers, URLs and your own types can be logged without string interpolation. Each message is written as its `description`, and `nil` is still left out. Log functions declared with `String?...` keep compiling. To pass other values, change their parameters:
+
+```swift
+// Before
+nonisolated func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) { … }
+logD("Loaded items: \(items.count)")
+
+// After
+nonisolated func logD(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) { … }
+logD("Loaded items:", items.count)
+```
