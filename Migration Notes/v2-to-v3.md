@@ -222,15 +222,17 @@ For an error that is neither a `LocalizedError` nor an `NSError`, Foundation's `
 
 **Affects you if** a target of yours implements `logPriorityRange`, or your code uses `.allowAll`, `.allowNone`, `.allowFrom(min:)` or `.allowUntil(max:)`.
 
-**What changed:** `LogTarget.logPriorityRange: ClosedRange<LogLevel>?` is replaced by `LogTarget.levelFilter: LogLevelFilter`. In 2.x, `nil` meant that a target accepts no level, which reads like "no filter". A reversed range like `.warning ... .debug` stopped the app at runtime. `LogLevelFilter` says what it accepts by name, and `.between(_:and:)` orders its two levels itself, so a reversed filter can't crash. Targets that never implemented `logPriorityRange` keep accepting every level and need no change.
+**What changed:** `LogTarget.logPriorityRange: ClosedRange<LogLevel>?` is replaced by `LogTarget.levelFilter: LogLevelFilter`. In 2.x, `nil` meant that a target accepts no level, which reads like "no filter". A reversed range like `.warning ... .debug` stopped the app at runtime. `LogLevelFilter` says what it accepts by name, and `.betweenPriority(of:and:)` orders its two levels itself, so a reversed filter can't crash. The filters compare priorities only, and their names say so: a level with the same priority as the given one is accepted too, whatever its emoji. Targets that never implemented `logPriorityRange` keep accepting every level and need no change.
 
 | 2.x | 3.x |
 | --- | --- |
 | `.allowAll` | `.all` |
 | `.allowNone` or `nil` | `.none` |
-| `.allowFrom(min: level)` | `.from(level)` |
-| `.allowUntil(max: level)` | `.until(level)` |
-| `lower ... upper` | `.between(lower, and: upper)` |
+| `.allowFrom(min: level)` | `.fromPriority(of: level)` |
+| `.allowUntil(max: level)` | `.untilPriority(of: level)` |
+| `lower ... upper` | `.betweenPriority(of: lower, and: upper)` |
+| `level ... level` | `.onlyPriority(of: level)` |
+| (not possible) | `.onlyPriority(of: level, otherLevel)` |
 
 **What to do:** Rename the property, change its type and use the matching filter.
 
@@ -239,7 +241,7 @@ For an error that is neither a `LocalizedError` nor an `NSError`, Foundation's `
 var logPriorityRange: ClosedRange<LogLevel>? { .allowFrom(min: .info) }
 
 // After (3.x)
-var levelFilter: LogLevelFilter { .from(.info) }
+var levelFilter: LogLevelFilter { .fromPriority(of: .info) }
 ```
 
 ### 9. Rename `createLog` to `emit` in your targets

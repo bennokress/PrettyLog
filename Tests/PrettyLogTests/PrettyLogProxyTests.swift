@@ -264,7 +264,7 @@ func prettyLogProxyWithoutSensitiveData() {
 @Test
 func prettyLogProxyFilteredByPriority() {
     let mockTarget = MockLogTarget()
-    mockTarget.levelFilter = .from(.warning)
+    mockTarget.levelFilter = .fromPriority(of: .warning)
 
     PrettyLogProxy.log(["This should be filtered"], as: .info, category: .debug, to: [mockTarget])
     PrettyLogProxy.log(["This should pass"], as: .warning, category: .debug, to: [mockTarget])

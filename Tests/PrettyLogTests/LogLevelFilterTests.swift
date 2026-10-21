@@ -30,8 +30,8 @@ func logLevelFilterAll() {
 }
 
 @Test
-func logLevelFilterFrom() {
-    let filter = LogLevelFilter.from(.info)
+func logLevelFilterFromPriority() {
+    let filter = LogLevelFilter.fromPriority(of: .info)
     #expect(!filter.contains(.debug))
     #expect(!filter.contains(.verbose))
     #expect(filter.contains(.info))
@@ -41,8 +41,8 @@ func logLevelFilterFrom() {
 }
 
 @Test
-func logLevelFilterUntil() {
-    let filter = LogLevelFilter.until(.warning)
+func logLevelFilterUntilPriority() {
+    let filter = LogLevelFilter.untilPriority(of: .warning)
     #expect(filter.contains(.debug))
     #expect(filter.contains(.verbose))
     #expect(filter.contains(.info))
@@ -52,8 +52,8 @@ func logLevelFilterUntil() {
 }
 
 @Test
-func logLevelFilterBetween() {
-    let filter = LogLevelFilter.between(.verbose, and: .warning)
+func logLevelFilterBetweenPriority() {
+    let filter = LogLevelFilter.betweenPriority(of: .verbose, and: .warning)
     #expect(!filter.contains(.debug))
     #expect(filter.contains(.verbose))
     #expect(filter.contains(.info))
@@ -62,22 +62,59 @@ func logLevelFilterBetween() {
 }
 
 @Test
-func logLevelFilterBetweenReversedBoundsOrdersThem() {
+func logLevelFilterBetweenPriorityReversedBoundsOrdersThem() {
     // A reversed `ClosedRange` stopped the app at runtime. The filter orders the bounds instead.
-    #expect(LogLevelFilter.between(.warning, and: .verbose) == .between(.verbose, and: .warning))
+    #expect(LogLevelFilter.betweenPriority(of: .warning, and: .verbose) == .betweenPriority(of: .verbose, and: .warning))
 }
 
 @Test
-func logLevelFilterBetweenSameLevel() {
-    let filter = LogLevelFilter.between(.info, and: .info)
+func logLevelFilterBetweenPrioritySameLevel() {
+    let filter = LogLevelFilter.betweenPriority(of: .info, and: .info)
     #expect(!filter.contains(.verbose))
     #expect(filter.contains(.info))
     #expect(!filter.contains(.warning))
 }
 
 @Test
+func logLevelFilterOnlyPriorityOfOneLevel() {
+    let filter = LogLevelFilter.onlyPriority(of: .keyEvent)
+    #expect(!filter.contains(.error))
+    #expect(filter.contains(.keyEvent))
+}
+
+@Test
+func logLevelFilterOnlyPriorityOfSeveralLevels() {
+    let filter = LogLevelFilter.onlyPriority(of: .verbose, .error)
+    #expect(!filter.contains(.debug))
+    #expect(filter.contains(.verbose))
+    #expect(!filter.contains(.info))
+    #expect(!filter.contains(.warning))
+    #expect(filter.contains(.error))
+    #expect(!filter.contains(.keyEvent))
+}
+
+@Test
+func logLevelFilterOnlyPriorityOfNoLevelAcceptsNothing() {
+    #expect(LogLevelFilter.onlyPriority() == .none)
+}
+
+@Test
+func logLevelFilterOnlyPriorityOfOneLevelEqualsBetweenPriorityOfThatLevel() {
+    #expect(LogLevelFilter.onlyPriority(of: .info) == .betweenPriority(of: .info, and: .info))
+    #expect(LogLevelFilter.onlyPriority(of: .info, .info) == .betweenPriority(of: .info, and: .info))
+}
+
+@Test
+func logLevelFilterAcceptsLevelsWithTheSamePriority() {
+    // The priority identifies the level, so a level with another emoji but the same priority is the same level.
+    let lookalike = LogLevel(emoji: "🟣", priority: LogLevel.info.priority)
+    #expect(LogLevelFilter.onlyPriority(of: .info).contains(lookalike))
+    #expect(LogLevelFilter.onlyPriority(of: .info, .error).contains(lookalike))
+}
+
+@Test
 func logLevelFilterIsSendable() {
     // Compiles only while LogLevelFilter conforms to Sendable, which `Sendable` targets need to store a filter.
-    let filters: [any Sendable] = [LogLevelFilter.all, LogLevelFilter.from(.info)]
+    let filters: [any Sendable] = [LogLevelFilter.all, LogLevelFilter.fromPriority(of: .info)]
     #expect(filters.count == 2)
 }

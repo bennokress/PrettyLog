@@ -85,7 +85,7 @@ nonisolated struct ConsoleLog: LogTarget {
 
 - `canLogSensitiveInformation`: if `false`, the target never receives the sensitive part of a log statement.
 - `emit(_:message:category:)`: gives the log statement its form and passes it on to its destination.
-- `levelFilter`: the levels the target accepts, for example `.from(.info)`. It is optional and accepts every level by default.
+- `levelFilter`: the levels the target accepts, for example `.fromPriority(of: .info)` or `.onlyPriority(of: .keyEvent)`. It is optional and accepts every level by default.
 
 ### 2. Define your log levels
 
@@ -406,7 +406,7 @@ nonisolated struct BackendLog: LogTarget {
 
     let canLogSensitiveInformation = false
 
-    var levelFilter: LogLevelFilter { .from(.info) }
+    var levelFilter: LogLevelFilter { .fromPriority(of: .info) }
 
     func emit(_ level: LogLevel, message: String, category: LogCategory) {
         // Send the statement to your backend
