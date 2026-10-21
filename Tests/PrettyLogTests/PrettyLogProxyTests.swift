@@ -10,7 +10,7 @@ import Testing
 
 class MockLogTarget: LogTarget {
     var canLogSensitiveInformation = true
-    var logPriorityRange: ClosedRange<LogLevel>? = .allowAll
+    var levelFilter: LogLevelFilter = .all
     var capturedLogs: [(LogLevel, String, LogCategory)] = []
 
     func createLog(_ level: LogLevel, message: String, category: LogCategory) {
@@ -264,7 +264,7 @@ func prettyLogProxyWithoutSensitiveData() {
 @Test
 func prettyLogProxyFilteredByPriority() {
     let mockTarget = MockLogTarget()
-    mockTarget.logPriorityRange = .allowFrom(min: .warning)
+    mockTarget.levelFilter = .from(.warning)
 
     PrettyLogProxy.log(["This should be filtered"], as: .info, category: .debug, to: [mockTarget])
     PrettyLogProxy.log(["This should pass"], as: .warning, category: .debug, to: [mockTarget])

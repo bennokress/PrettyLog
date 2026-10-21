@@ -56,51 +56,6 @@ func logLevelSwitchMatchesAppDefinedLevels() {
 }
 
 @Test
-func logLevelRangeAllowNone() {
-    let range: ClosedRange<LogLevel>? = .allowNone
-    #expect(range == nil)
-    #expect(!range.contains(.debug))
-    #expect(!range.contains(.error))
-    #expect(!range.contains(.keyEvent))
-}
-
-@Test
-func logLevelRangeAllowAll() {
-    let range = ClosedRange<LogLevel>?.allowAll
-    #expect(range != nil)
-    #expect(range!.contains(.debug))
-    #expect(range!.contains(.verbose))
-    #expect(range!.contains(.info))
-    #expect(range!.contains(.warning))
-    #expect(range!.contains(.error))
-    #expect(range!.contains(.keyEvent))
-}
-
-@Test
-func logLevelRangeAllowFrom() {
-    let range = ClosedRange<LogLevel>?.allowFrom(min: .info)
-    #expect(range != nil)
-    #expect(!range!.contains(.debug))
-    #expect(!range!.contains(.verbose))
-    #expect(range!.contains(.info))
-    #expect(range!.contains(.warning))
-    #expect(range!.contains(.error))
-    #expect(range!.contains(.keyEvent))
-}
-
-@Test
-func logLevelRangeAllowUntil() {
-    let range = ClosedRange<LogLevel>?.allowUntil(max: .warning)
-    #expect(range != nil)
-    #expect(range!.contains(.debug))
-    #expect(range!.contains(.verbose))
-    #expect(range!.contains(.info))
-    #expect(range!.contains(.warning))
-    #expect(!range!.contains(.error))
-    #expect(!range!.contains(.keyEvent))
-}
-
-@Test
 func logLevelIsSendable() {
     // Compiles only while LogLevel conforms to Sendable, which consumers need to store levels in a `static let` or pass them into a `Task`.
     let levels: [any Sendable] = [LogLevel.debug, LogLevel(emoji: "🟣", priority: 200)]

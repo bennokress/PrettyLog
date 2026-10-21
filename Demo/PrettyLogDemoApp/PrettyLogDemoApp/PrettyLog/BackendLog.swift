@@ -16,7 +16,7 @@ struct BackendLog: LogTarget {
     let canLogSensitiveInformation = false
 
     /// Only log INFO level and above to reduce server load
-    var logPriorityRange: ClosedRange<LogLevel>? { .allowFrom(min: .info) }
+    var levelFilter: LogLevelFilter { .from(.info) }
     
     private let serverURL = URL(string: "https://api.example.com/logs")!
     

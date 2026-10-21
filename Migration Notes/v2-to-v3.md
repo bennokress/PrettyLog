@@ -23,6 +23,7 @@ Applies to every 3.x release.
 - [ ] [Define your own log functions](#5-define-your-own-log-functions)
 - [ ] [Pass your targets to every `PrettyLogProxy` call](#6-pass-your-targets-to-every-prettylogproxy-call)
 - [ ] [Check what your targets receive from errors and exceptions](#7-check-what-your-targets-receive-from-errors-and-exceptions)
+- [ ] [Filter levels with `LogLevelFilter`](#8-filter-levels-with-loglevelfilter)
 
 ## Breaking changes
 
@@ -215,6 +216,30 @@ PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: sep
 For an error that is neither a `LocalizedError` nor an `NSError`, Foundation's `localizedDescription` is only "The operation couldn't be completed." with the module, the type and a case number, so 3.x logs the name of the type instead. An `enum NetworkError: Error` thrown as `.notFound` now reads `NetworkError - notFound`, or `NetworkError` for a target that may not receive sensitive data.
 
 **What to do:** Adjust anything that parses these statements. If a target really needs the details, it has to allow sensitive data.
+
+### 8. Filter levels with `LogLevelFilter`
+
+**Affects you if** a target of yours implements `logPriorityRange`, or your code uses `.allowAll`, `.allowNone`, `.allowFrom(min:)` or `.allowUntil(max:)`.
+
+**What changed:** `LogTarget.logPriorityRange: ClosedRange<LogLevel>?` is replaced by `LogTarget.levelFilter: LogLevelFilter`. In 2.x, `nil` meant that a target accepts no level, which reads like "no filter". A reversed range like `.warning ... .debug` stopped the app at runtime. `LogLevelFilter` says what it accepts by name, and `.between(_:and:)` orders its two levels itself, so a reversed filter can't crash. Targets that never implemented `logPriorityRange` keep accepting every level and need no change.
+
+| 2.x | 3.x |
+| --- | --- |
+| `.allowAll` | `.all` |
+| `.allowNone` or `nil` | `.none` |
+| `.allowFrom(min: level)` | `.from(level)` |
+| `.allowUntil(max: level)` | `.until(level)` |
+| `lower ... upper` | `.between(lower, and: upper)` |
+
+**What to do:** Rename the property, change its type and use the matching filter.
+
+```swift
+// Before (2.x)
+var logPriorityRange: ClosedRange<LogLevel>? { .allowFrom(min: .info) }
+
+// After (3.x)
+var levelFilter: LogLevelFilter { .from(.info) }
+```
 
 ## New and optional
 
