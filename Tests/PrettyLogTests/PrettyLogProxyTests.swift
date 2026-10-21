@@ -97,28 +97,6 @@ func prettyLogProxyLogNilError() {
 }
 
 @Test
-func prettyLogProxyLogException() {
-    let mockTarget = MockLogTarget()
-    let testException = NSException(name: .genericException, reason: "Test exception", userInfo: nil)
-
-    PrettyLogProxy.log(testException, as: .error, category: .view, to: [mockTarget])
-
-    #expect(mockTarget.capturedLogs.count == 1)
-    #expect(mockTarget.capturedLogs[0].0 == .error)
-    #expect(mockTarget.capturedLogs[0].1.contains("Test exception"))
-}
-
-@Test
-func prettyLogProxyLogNilException() {
-    let mockTarget = MockLogTarget()
-    let nilException: NSException? = nil
-
-    PrettyLogProxy.log(nilException, as: .error, category: .view, to: [mockTarget])
-
-    #expect(mockTarget.capturedLogs.count == 0) // Should not log nil exceptions
-}
-
-@Test
 func prettyLogProxyLogErrorHidesDetailsFromTargetWithoutSensitiveInformation() {
     let mockTarget = MockLogTarget()
     mockTarget.canLogSensitiveInformation = false
@@ -216,30 +194,6 @@ func prettyLogProxyLogBridgedFoundationErrorUsesLocalizedDescriptionAsPublicPart
 }
 
 @Test
-func prettyLogProxyLogExceptionHidesReasonAndUserInfoFromTargetWithoutSensitiveInformation() {
-    let mockTarget = MockLogTarget()
-    mockTarget.canLogSensitiveInformation = false
-    let testException = NSException(name: .genericException, reason: "secret-reason", userInfo: ["token": "secret-token"])
-
-    PrettyLogProxy.log(testException, as: .error, category: .view, to: [mockTarget])
-
-    #expect(mockTarget.capturedLogs.count == 1)
-    #expect(mockTarget.capturedLogs[0].1 == NSExceptionName.genericException.rawValue)
-}
-
-@Test
-func prettyLogProxyLogExceptionShowsReasonAndUserInfoToTargetWithSensitiveInformation() {
-    let mockTarget = MockLogTarget()
-    let testException = NSException(name: .genericException, reason: "secret-reason", userInfo: ["token": "secret-token"])
-
-    PrettyLogProxy.log(testException, as: .error, category: .view, to: [mockTarget])
-
-    #expect(mockTarget.capturedLogs.count == 1)
-    #expect(mockTarget.capturedLogs[0].1.hasPrefix("\(NSExceptionName.genericException.rawValue) - secret-reason - "))
-    #expect(mockTarget.capturedLogs[0].1.contains("secret-token"))
-}
-
-@Test
 func prettyLogProxyWithSensitiveData() {
     let mockTarget = MockLogTarget()
     mockTarget.canLogSensitiveInformation = true
@@ -294,7 +248,6 @@ func prettyLogProxyWithoutTargetsLogsNothingAndDoesNotCrash() {
 
     PrettyLogProxy.log(["Info"], as: .info, to: noTargets)
     PrettyLogProxy.log(NSError(domain: "TestDomain", code: 42), as: .error, to: noTargets)
-    PrettyLogProxy.log(NSException(name: .genericException, reason: nil, userInfo: nil), as: .error, to: noTargets)
 
     #expect(noTargets.isEmpty)
 }

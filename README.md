@@ -75,7 +75,19 @@ nonisolated struct ConsoleLog: LogTarget {
     }
 
     private func prefix(level: LogLevel, category: LogCategory) -> String {
-        "\(currentTimestamp) \(category.truncatedOrPadded(to: 20)) \(level.emoji)"
+        "\(currentTimestamp) \(category.name.truncatedOrPadded(to: 20)) \(level.emoji)"
+    }
+
+}
+
+nonisolated extension String {
+
+    /// The String cut or padded to exactly the given length, so the categories of all log statements line up.
+    /// A longer String ends in "…", a shorter one is padded with spaces at the beginning.
+    func truncatedOrPadded(to length: Int) -> String {
+        guard length > 0 else { return "" }
+        guard count <= length else { return String(prefix(length - 1)) + "…" }
+        return String(repeating: " ", count: length - count) + self
     }
 
 }
@@ -211,15 +223,6 @@ nonisolated func log(_ error: Error?, category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(error, as: .error, category: category, to: logTargets)
 }
 
-/// Log a `NSException`.
-/// - Parameters:
-///   - exception: The exception to log
-///   - category: The category of the log statement (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `exception` is `nil`.
-nonisolated func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(exception, as: .error, category: category, to: logTargets)
-}
-
 // TODO: Add a log function for every other level you define -> for example `logT` for a level `.todo` (see "Custom Log Levels").
 
 // MARK: - Log Targets
@@ -339,16 +342,14 @@ logD("Loaded items:", items.count, "from", url)
 
 <img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="Assets/README/7-Concatenation.png" />
 
-### Errors and Exceptions
+### Errors
 
 ```swift
 let error = NetworkError.notFound
-let exception = NSException(name: .portTimeoutException, reason: nil)
 log(error, category: .service)
-log(exception, category: .service)
 ```
 
-<img alt="Console Output of PrettyLog statements that take in Error and NSException as arguments" src="Assets/README/8-Errors-and-Exceptions.png" />
+<img alt="Console Output of a PrettyLog statement that takes in an Error as argument" src="Assets/README/8-Errors-and-Exceptions.png" />
 
 ## Expert Usage
 

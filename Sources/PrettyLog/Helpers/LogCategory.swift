@@ -17,8 +17,7 @@ import Foundation
 ///     }
 ///
 /// Two categories are equal when their names are equal, so a target can compare a category with `==` or use it as a dictionary key.
-///
-/// - Attention: For the default `PrettyLog`s default Console Log the name of the category will always be truncated to 20 characters in order to keep the visual design of the log statements consistent.
+/// How the name appears in a log statement, for example cut or padded to a fixed width, is up to the target that formats the statement.
 public struct LogCategory: Sendable, Hashable {
 
     /// The name of the Log Category that can be used in log statements.
@@ -29,14 +28,6 @@ public struct LogCategory: Sendable, Hashable {
     public init(_ name: String) {
         self.name = name
     }
-
-    // MARK: - Properties & Methods
-
-    /// The name of the Log Category as a fixed width String and right aligned to make it look nice in a console log statement.
-    ///
-    /// A longer name is cut and ends in "…", a shorter one is padded with spaces at the beginning.
-    /// - Parameter fixedLength: The desired fixed length of the output. A length of 0 or less returns an empty String.
-    public func truncatedOrPadded(to fixedLength: Int) -> String { name.truncateOrPad(to: fixedLength) }
 
 }
 

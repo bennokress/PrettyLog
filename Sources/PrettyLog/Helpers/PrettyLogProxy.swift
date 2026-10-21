@@ -49,23 +49,6 @@ public struct PrettyLogProxy {
         return error.localizedDescription
     }
 
-    /// Log a `NSException`.
-    ///
-    /// The `name` of the exception is logged as the public part. Its `reason` and `userInfo` are free text that can contain anything, so they are logged as sensitive part.
-    /// Targets that can't log sensitive information only receive the `name`.
-    /// - Parameters:
-    ///   - exception: The exception to log
-    ///   - level: The level to log with
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
-    /// - Attention: No log will be created, if `exception` is `nil`.
-    public static func log(_ exception: NSException?, as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        guard let exception else { return }
-        let userInfo = exception.userInfo.map { "\($0)" }
-        let assembler = LogStatementAssembler(messages: [exception.name.rawValue], sensitiveMessages: [exception.reason, userInfo])
-        log(level, statementAssembler: assembler, category: category, to: targets)
-    }
-
     /// Log a statement with any level.
     /// - Parameters:
     ///   - messages: One or more strings and string-convertible objects to include in the log statement, each written as its `description`

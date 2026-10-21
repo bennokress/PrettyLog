@@ -22,9 +22,11 @@ Applies to every 3.x release.
 - [ ] [Define your own log categories](#4-define-your-own-log-categories)
 - [ ] [Define your own log functions](#5-define-your-own-log-functions)
 - [ ] [Pass your targets to every `PrettyLogProxy` call](#6-pass-your-targets-to-every-prettylogproxy-call)
-- [ ] [Check what your targets receive from errors and exceptions](#7-check-what-your-targets-receive-from-errors-and-exceptions)
+- [ ] [Check what your targets receive from errors](#7-check-what-your-targets-receive-from-errors)
 - [ ] [Filter levels with `LogLevelFilter`](#8-filter-levels-with-loglevelfilter)
 - [ ] [Rename `createLog` to `emit` in your targets](#9-rename-createlog-to-emit-in-your-targets)
+- [ ] [Log exceptions yourself](#10-log-exceptions-yourself)
+- [ ] [Cut or pad category names in your targets](#11-cut-or-pad-category-names-in-your-targets)
 
 ## Breaking changes
 
@@ -62,9 +64,9 @@ nonisolated struct ConsoleLog: LogTarget {
 
 ### 3. Define your own log levels
 
-**Affects you if** you use a log level in any way: through the `PrettyLogProxy` methods `logD`, `logX`, `logV`, `logS`, `logI`, `logP`, `logW`, `logE` or `logK`, as a predefined level such as `.debug`, `.xcode` or `.keyEvent`, with `.custom(emoji:priority:)`, or by logging an error or exception without `as:`. That is every app that uses PrettyLog.
+**Affects you if** you use a log level in any way: through the `PrettyLogProxy` methods `logD`, `logX`, `logV`, `logS`, `logI`, `logP`, `logW`, `logE` or `logK`, as a predefined level such as `.debug`, `.xcode` or `.keyEvent`, with `.custom(emoji:priority:)`, or by logging an error without `as:`. That is every app that uses PrettyLog.
 
-**What changed:** PrettyLog ships no log levels anymore. `LogLevel` is a struct with an emoji and a priority, and your app defines the levels it uses. The proxy methods that were tied to a predefined level are gone. `PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)` takes the level as an argument, and the methods for errors and exceptions require `as:`. In 2.x each of the three lower levels had two names, `.debug` and `.xcode`, `.verbose` and `.staging`, `.info` and `.production`. They had the same emoji and priority but were not equal, so a target that switched over the level had to handle both. Now each app picks one set of names. Two levels with the same priority are now equal, whatever their emoji.
+**What changed:** PrettyLog ships no log levels anymore. `LogLevel` is a struct with an emoji and a priority, and your app defines the levels it uses. The proxy methods that were tied to a predefined level are gone. `PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)` takes the level as an argument, and the method for errors requires `as:`. In 2.x each of the three lower levels had two names, `.debug` and `.xcode`, `.verbose` and `.staging`, `.info` and `.production`. They had the same emoji and priority but were not equal, so a target that switched over the level had to handle both. Now each app picks one set of names. Two levels with the same priority are now equal, whatever their emoji.
 
 **What to do:**
 
@@ -80,7 +82,7 @@ nonisolated struct ConsoleLog: LogTarget {
     | `logK` | `.keyEvent` | `LogLevel(emoji: "📊", priority: .max)` |
 
 2. In your logging file, replace every call of one of these proxy methods with `PrettyLogProxy.log(..., as: <level>, ...)`.
-3. Pass `as: .error`, or the level you want, when you log an error or exception.
+3. Pass `as: .error`, or the level you want, when you log an error.
 4. Replace `.custom(emoji: e, priority: p)` with `LogLevel(emoji: e, priority: p)`.
 5. A `switch` over the level needs a `default` branch now, because levels are values and not enum cases. Merge branches like `case .debug, .xcode:` into the one name you kept, otherwise the code doesn't compile.
 6. Declare the extension `nonisolated` if your app makes the main actor its default isolation.
@@ -202,17 +204,16 @@ PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: se
 PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: logTargets)
 ```
 
-### 7. Check what your targets receive from errors and exceptions
+### 7. Check what your targets receive from errors
 
-**Affects you if** you log errors or exceptions and evaluate the resulting statements, for example in a backend, or rely on the full details reaching a target whose `canLogSensitiveInformation` is `false`.
+**Affects you if** you log errors and evaluate the resulting statements, for example in a backend, or rely on the full details reaching a target whose `canLogSensitiveInformation` is `false`.
 
-**What changed:** The details of errors and exceptions are now treated as sensitive, because they can contain tokens, URLs and other personal data. This compiles unchanged, but the content of the statements changes:
+**What changed:** The details of errors are now treated as sensitive, because they can contain tokens, URLs and other personal data. This compiles unchanged, but the content of the statements changes:
 
 | | 2.x | 3.x, target may receive sensitive data | 3.x, target may not |
 | --- | --- | --- | --- |
 | `LocalizedError`, `NSError`, `URLError`, `CocoaError` | `localizedDescription (full description)` | `localizedDescription - full description` | `localizedDescription` |
 | any other `Error` | `localizedDescription (full description)` | `TypeName - full description` | `TypeName` |
-| `NSException` | the `description` of the exception | `name - reason - userInfo` | `name` |
 
 For an error that is neither a `LocalizedError` nor an `NSError`, Foundation's `localizedDescription` is only "The operation couldn't be completed." with the module, the type and a case number, so 3.x logs the name of the type instead. An `enum NetworkError: Error` thrown as `.notFound` now reads `NetworkError - notFound`, or `NetworkError` for a target that may not receive sensitive data.
 
@@ -258,6 +259,49 @@ func createLog(_ level: LogLevel, message: String, category: LogCategory) { … 
 
 // After (3.x)
 func emit(_ level: LogLevel, message: String, category: LogCategory) { … }
+```
+
+### 10. Log exceptions yourself
+
+**Affects you if** you call `PrettyLogProxy.log(_:as:category:to:)` with an `NSException`, usually in a `log(_ exception:)` function of your logging file.
+
+**What changed:** PrettyLog no longer has a method for `NSException`. Swift code rarely gets hold of an `NSException`, so the package no longer ships a method for it.
+
+**What to do:** Delete your `log(_ exception:)` function if nothing calls it. If you do log exceptions, pass the name as message and the reason and user info as sensitive messages. They are free text that can contain anything, so only targets that may receive sensitive data should get them:
+
+```swift
+// Before
+PrettyLogProxy.log(exception, as: .error, category: category, to: logTargets)
+
+// After
+guard let exception else { return }
+PrettyLogProxy.log([exception.name.rawValue], sensitiveMessages: [exception.reason, exception.userInfo.map { "\($0)" }], as: .error, category: category, to: logTargets)
+```
+
+### 11. Cut or pad category names in your targets
+
+**Affects you if** a target of yours calls `category.truncatedOrPadded(to:)`.
+
+**What changed:** `LogCategory.truncatedOrPadded(to:)` is gone. How a category appears in a log statement is up to the target that formats it, and PrettyLog itself never used the method.
+
+**What to do:** Add the method to `String` in your app, next to your targets, and call it on the name of the category.
+
+```swift
+// Before
+"\(currentTimestamp) \(category.truncatedOrPadded(to: 20)) \(level.emoji)"
+
+// After
+"\(currentTimestamp) \(category.name.truncatedOrPadded(to: 20)) \(level.emoji)"
+
+nonisolated extension String {
+
+    func truncatedOrPadded(to length: Int) -> String {
+        guard length > 0 else { return "" }
+        guard count <= length else { return String(prefix(length - 1)) + "…" }
+        return String(repeating: " ", count: length - count) + self
+    }
+
+}
 ```
 
 ## New and optional

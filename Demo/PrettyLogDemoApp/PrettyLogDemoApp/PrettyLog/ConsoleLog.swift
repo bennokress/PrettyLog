@@ -35,7 +35,21 @@ struct ConsoleLog: LogTarget {
     }
 
     private func prefix(level: LogLevel, category: LogCategory) -> String {
-        "\(currentTimestamp) \(category.truncatedOrPadded(to: 20)) \(level.emoji)"
+        "\(currentTimestamp) \(category.name.truncatedOrPadded(to: 20)) \(level.emoji)"
+    }
+
+}
+
+// MARK: - Fixed Width
+
+extension String {
+
+    /// The String cut or padded to exactly the given length, so the categories of all log statements line up.
+    /// A longer String ends in "…", a shorter one is padded with spaces at the beginning.
+    func truncatedOrPadded(to length: Int) -> String {
+        guard length > 0 else { return "" }
+        guard count <= length else { return String(prefix(length - 1)) + "…" }
+        return String(repeating: " ", count: length - count) + self
     }
 
 }

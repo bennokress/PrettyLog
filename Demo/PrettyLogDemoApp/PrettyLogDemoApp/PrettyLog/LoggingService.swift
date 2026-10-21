@@ -137,15 +137,6 @@ func log(_ error: Error?, category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(error, as: .error, category: category, to: defaultTargets)
 }
 
-/// Log a `NSException`
-/// - Parameters:
-///   - exception: The exception to log
-///   - category: The category of the log statement (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `exception` is `nil`
-func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(exception, as: .error, category: category, to: defaultTargets)
-}
-
 // MARK: - Default Targets
 
 private var defaultTargets: [LogTarget] {
