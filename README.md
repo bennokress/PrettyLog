@@ -215,12 +215,19 @@ nonisolated func logK(_ messages: (any CustomStringConvertible)?..., joinedBy se
 }
 
 /// Log an `Error`.
+///
+/// The public part is the `localizedDescription` of a `LocalizedError` or an `NSError`, and the name of the type for any other error,
+/// because Foundation would only produce "The operation couldn't be completed." for it. The full description goes into the sensitive part,
+/// because it can contain the `userInfo` of an `NSError`, a complete URL or the associated values of an error enum.
 /// - Parameters:
 ///   - error: The error to log
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `error` is `nil`.
 nonisolated func log(_ error: Error?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(error, as: .error, category: category, to: logTargets)
+    guard let error else { return }
+    let isReadable = error is LocalizedError || type(of: error) is NSError.Type
+    let publicPart = isReadable ? error.localizedDescription : String(describing: type(of: error))
+    PrettyLogProxy.log([publicPart], sensitiveMessages: ["\(error)"], as: .error, category: category, to: logTargets)
 }
 
 // TODO: Add a log function for every other level you define -> for example `logT` for a level `.todo` (see "Custom Log Levels").
@@ -343,6 +350,8 @@ logD("Loaded items:", items.count, "from", url)
 <img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="Assets/README/7-Concatenation.png" />
 
 ### Errors
+
+PrettyLog has no method of its own for errors. The `log(_:category:)` function from the setup file logs the readable part of an error for every target and its full description only for targets that may receive sensitive data:
 
 ```swift
 let error = NetworkError.notFound

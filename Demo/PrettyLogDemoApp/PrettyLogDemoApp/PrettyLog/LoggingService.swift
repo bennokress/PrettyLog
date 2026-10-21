@@ -128,13 +128,20 @@ func logT(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: category, to: defaultTargets)
 }
 
-/// Log an `Error`
+/// Log an `Error`.
+///
+/// The public part is the `localizedDescription` of a `LocalizedError` or an `NSError`, and the name of the type for any other error,
+/// because Foundation would only produce "The operation couldn't be completed." for it. The full description goes into the sensitive part,
+/// because it can contain the `userInfo` of an `NSError`, a complete URL or the associated values of an error enum.
 /// - Parameters:
 ///   - error: The error to log
 ///   - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `error` is `nil`
+/// - Attention: No log will be created, if `error` is `nil`.
 func log(_ error: Error?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(error, as: .error, category: category, to: defaultTargets)
+    guard let error else { return }
+    let isReadable = error is LocalizedError || type(of: error) is NSError.Type
+    let publicPart = isReadable ? error.localizedDescription : String(describing: type(of: error))
+    PrettyLogProxy.log([publicPart], sensitiveMessages: ["\(error)"], as: .error, category: category, to: defaultTargets)
 }
 
 // MARK: - Default Targets
