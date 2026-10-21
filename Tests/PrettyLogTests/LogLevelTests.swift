@@ -29,7 +29,15 @@ func logLevelComparison() {
 func logLevelEquality() {
     #expect(LogLevel.debug == LogLevel(emoji: "🟤", priority: 100))
     #expect(LogLevel.debug != LogLevel(emoji: "🟤", priority: 101))
-    #expect(LogLevel.debug != LogLevel(emoji: "🔵", priority: 100))
+}
+
+@Test
+func logLevelWithSamePriorityIsEqualWhateverItsEmoji() {
+    // Keeps `Comparable` consistent: for any two levels exactly one of `<`, `==` and `>` holds.
+    let other = LogLevel(emoji: "🔵", priority: 100)
+    #expect(LogLevel.debug == other)
+    #expect(!(LogLevel.debug < other))
+    #expect(!(other < LogLevel.debug))
 }
 
 @Test

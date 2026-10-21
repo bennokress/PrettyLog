@@ -27,7 +27,7 @@ public struct LogLevel: Sendable {
     public var emoji: String { String(emojiCharacter) }
 
     /// The priority can be used to determine which log statement should be sent to a specific target.
-    /// - Attention: Two levels with the same priority but different emoji are neither equal nor ordered. Give every level of your app its own priority.
+    /// - Attention: The priority identifies the level: two levels with the same priority are equal, whatever their emoji. Give every level of your app its own priority.
     public let priority: Int
 
     private let emojiCharacter: Character
@@ -44,6 +44,11 @@ public struct LogLevel: Sendable {
 }
 
 extension LogLevel: Comparable {
+
+    // Equality follows the same key as the order, otherwise two levels with the same priority and different emoji would be neither equal nor ordered, which breaks `Comparable`.
+    public static func == (lhs: LogLevel, rhs: LogLevel) -> Bool {
+        lhs.priority == rhs.priority
+    }
 
     public static func < (lhs: LogLevel, rhs: LogLevel) -> Bool {
         lhs.priority < rhs.priority
