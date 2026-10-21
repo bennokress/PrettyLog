@@ -16,10 +16,15 @@ extension String {
         strings.removingEmptyElements.joined(separator: separator).replacedWithNilIfEmpty
     }
 
-    /// Removes all characters from the String exceeding the desired length and pads the String from  the beginning using spaces, if the String is shorter than the desired length.
-    /// - Parameter desiredLength: The desired fixed length of the String.
+    /// Brings the String to exactly the desired length.
+    ///
+    /// A longer String is cut and ends in "…", which counts towards the desired length. A shorter String is padded at the beginning with the given character.
+    /// - Parameters:
+    ///   - desiredLength: The desired fixed length of the String. A length of 0 or less returns an empty String.
+    ///   - character: The character used for padding. Defaults to a space.
     /// - Returns: The truncated or padded String.
     func truncateOrPad(to desiredLength: Int, using character: Character = " ") -> String {
+        guard desiredLength > 0 else { return "" }
         guard count != desiredLength else { return self }
         var editedString = self
         if count > desiredLength {

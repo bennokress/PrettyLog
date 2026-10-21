@@ -34,7 +34,9 @@ public enum LogCategory: Sendable {
     // MARK: - Properties & Methods
 
     /// The name of the Log Category as a fixed width String and right aligned to make it look nice in a console log statement.
-    /// - Parameter fixedLength: The desired fixed length of the output.
+    ///
+    /// A longer name is cut and ends in "…", a shorter one is padded with spaces at the beginning.
+    /// - Parameter fixedLength: The desired fixed length of the output. A length of 0 or less returns an empty String.
     public func truncatedOrPadded(to fixedLength: Int) -> String { name.truncateOrPad(to: fixedLength) }
 
     /// The name of the LogCategory that can be used in log statements.

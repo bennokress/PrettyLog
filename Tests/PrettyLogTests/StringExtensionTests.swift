@@ -85,6 +85,18 @@ func stringTruncateOrPadVeryShort() {
 }
 
 @Test
+func stringTruncateOrPadZeroLength() {
+    #expect("Hello".truncateOrPad(to: 0) == "")
+    #expect("".truncateOrPad(to: 0) == "")
+}
+
+@Test
+func stringTruncateOrPadNegativeLength() {
+    #expect("Hello".truncateOrPad(to: -3) == "")
+    #expect("".truncateOrPad(to: -3) == "")
+}
+
+@Test
 func stringProtocolReplacedWithNilIfEmpty() {
     #expect("Hello".replacedWithNilIfEmpty == "Hello")
     #expect("".replacedWithNilIfEmpty == nil)
