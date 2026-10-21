@@ -228,3 +228,15 @@ func prettyLogProxyAcceptsSendableTargets() {
     PrettyLogProxy.log(["Info"], as: .info, to: sendableLogTargets)
     #expect(sendableLogTargets.count == 1)
 }
+
+/// An empty target list is how an app switches logging off, for example in its own unit tests. It used to trip an assertion in debug builds.
+@Test
+func prettyLogProxyWithoutTargetsLogsNothingAndDoesNotCrash() {
+    let noTargets: [LogTarget] = []
+
+    PrettyLogProxy.log(["Info"], as: .info, to: noTargets)
+    PrettyLogProxy.log(NSError(domain: "TestDomain", code: 42), as: .error, to: noTargets)
+    PrettyLogProxy.log(NSException(name: .genericException, reason: nil, userInfo: nil), as: .error, to: noTargets)
+
+    #expect(noTargets.isEmpty)
+}

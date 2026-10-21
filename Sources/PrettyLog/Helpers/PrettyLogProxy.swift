@@ -30,7 +30,7 @@ public struct PrettyLogProxy {
     ///   - error: The error to log
     ///   - level: The level to log with
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
+    ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
     /// - Attention: No log will be created, if `error` is `nil`.
     public static func log(_ error: Error?, as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
         guard let error else { return }
@@ -46,7 +46,7 @@ public struct PrettyLogProxy {
     ///   - exception: The exception to log
     ///   - level: The level to log with
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
+    ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
     /// - Attention: No log will be created, if `exception` is `nil`.
     public static func log(_ exception: NSException?, as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
         guard let exception else { return }
@@ -62,7 +62,7 @@ public struct PrettyLogProxy {
     ///   - separator: The separator between messages (defaults to `" - "`)
     ///   - level: The level to log with
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
+    ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
     /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
     public static func log(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
         let assembler = LogStatementAssembler(messages: messages, sensitiveMessages: sensitiveMessages, separator: separator)
@@ -76,10 +76,9 @@ public struct PrettyLogProxy {
     ///   - level: The level to log with
     ///   - statementAssembler: The log statement assembler containing all the messages
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
+    ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
     /// - Attention: No log will be created, if `messages` and `sensitiveMessages` inside the `statementAssembler` are both empty or consist only of `nil`-elements.
     private static func log(_ level: LogLevel, statementAssembler: LogStatementAssembler, category: LogCategory, to targets: [LogTarget]) {
-        assert(!targets.isEmpty, "⚠️ Warning: trying to log, but no log targets were passed to the log method. No logs will be recorded!")
         for target in targets {
             target.log(level, messages: statementAssembler, category: category)
         }
