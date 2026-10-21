@@ -141,7 +141,7 @@ import PrettyLog
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logD(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -152,7 +152,7 @@ nonisolated func logD(_ messages: (any CustomStringConvertible)?..., sensitiveMe
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logV(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -163,7 +163,7 @@ nonisolated func logV(_ messages: (any CustomStringConvertible)?..., sensitiveMe
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logI(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -174,7 +174,7 @@ nonisolated func logI(_ messages: (any CustomStringConvertible)?..., sensitiveMe
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logW(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -185,7 +185,7 @@ nonisolated func logW(_ messages: (any CustomStringConvertible)?..., sensitiveMe
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logE(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -320,6 +320,8 @@ logE("Username and Password did not match", category: .manager)
 logW("Or create a Category on the spot ...", category: LogCategory("Announcement"))
 ```
 
+The sensitive part is appended to the public part with the same separator as the messages.
+
 <img alt="The same Log Statements as before, but the Token is now marked as sensitive data and can be sent to Production like that" src="Assets/README/6-Sensitive-Data.png" />
 
 ### Log Message Concatenation
@@ -385,7 +387,7 @@ To use it like the other levels, define a global method like `logT` for it in yo
 /// - Parameters:
 ///     - messages: One or more strings and string-convertible objects to include in the log statement
 ///     - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///     - separator: The separator between messages (defaults to `" - "`)
+///     - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements.
 nonisolated func logT(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ") {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: .todo, to: logTargets)

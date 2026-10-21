@@ -45,7 +45,7 @@ extension LogCategory {
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logX(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -56,7 +56,7 @@ func logX(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logV(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -67,7 +67,7 @@ func logV(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logS(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -78,7 +78,7 @@ func logS(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logP(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -89,7 +89,7 @@ func logP(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logW(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -100,7 +100,7 @@ func logW(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logE(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
@@ -121,7 +121,7 @@ func logK(_ messages: (any CustomStringConvertible)?..., joinedBy separator: Str
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logT(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {

@@ -70,7 +70,7 @@ public struct PrettyLogProxy {
     /// - Parameters:
     ///   - messages: One or more strings and string-convertible objects to include in the log statement, each written as its `description`
     ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content, each written as its `description`
-    ///   - separator: The separator between messages (defaults to `" - "`)
+    ///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
     ///   - level: The level to log with
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
