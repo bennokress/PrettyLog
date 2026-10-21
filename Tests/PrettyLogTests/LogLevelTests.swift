@@ -9,29 +9,10 @@ import Testing
 @testable import PrettyLog
 
 @Test
-func logLevelEmojis() {
-    #expect(LogLevel.debug.emoji == "🟤")
-    #expect(LogLevel.xcode.emoji == "🟤")
-    #expect(LogLevel.verbose.emoji == "🔵")
-    #expect(LogLevel.staging.emoji == "🔵")
-    #expect(LogLevel.info.emoji == "🟢")
-    #expect(LogLevel.production.emoji == "🟢")
-    #expect(LogLevel.warning.emoji == "🟡")
-    #expect(LogLevel.error.emoji == "🔴")
-    #expect(LogLevel.keyEvent.emoji == "📊")
-}
-
-@Test
-func logLevelPriorities() {
-    #expect(LogLevel.debug.priority == 100)
-    #expect(LogLevel.xcode.priority == 100)
-    #expect(LogLevel.verbose.priority == 300)
-    #expect(LogLevel.staging.priority == 300)
-    #expect(LogLevel.info.priority == 500)
-    #expect(LogLevel.production.priority == 500)
-    #expect(LogLevel.warning.priority == 700)
-    #expect(LogLevel.error.priority == 900)
-    #expect(LogLevel.keyEvent.priority == .max)
+func logLevelStoresEmojiAndPriority() {
+    let level = LogLevel(emoji: "🟣", priority: 200)
+    #expect(level.emoji == "🟣")
+    #expect(level.priority == 200)
 }
 
 @Test
@@ -41,19 +22,29 @@ func logLevelComparison() {
     #expect(LogLevel.info < LogLevel.warning)
     #expect(LogLevel.warning < LogLevel.error)
     #expect(LogLevel.error < LogLevel.keyEvent)
-
-    // Same priority levels should be equal
-    #expect(!(LogLevel.debug < LogLevel.xcode))
-    #expect(!(LogLevel.xcode < LogLevel.debug))
+    #expect(LogLevel.debug < LogLevel(emoji: "🟣", priority: 200))
 }
 
 @Test
-func customLogLevel() {
-    let customLevel = LogLevel.custom(emoji: "🟣", priority: 200)
-    #expect(customLevel.emoji == "🟣")
-    #expect(customLevel.priority == 200)
-    #expect(LogLevel.debug < customLevel)
-    #expect(customLevel < LogLevel.verbose)
+func logLevelEquality() {
+    #expect(LogLevel.debug == LogLevel(emoji: "🟤", priority: 100))
+    #expect(LogLevel.debug != LogLevel(emoji: "🟤", priority: 101))
+    #expect(LogLevel.debug != LogLevel(emoji: "🔵", priority: 100))
+}
+
+@Test
+func logLevelSwitchMatchesAppDefinedLevels() {
+    // Targets that map levels to something else, like an `os.Logger` type, switch over the levels the app defines.
+    func name(of level: LogLevel) -> String {
+        switch level {
+        case .debug: return "debug"
+        case .error: return "error"
+        default: return "other"
+        }
+    }
+    #expect(name(of: .debug) == "debug")
+    #expect(name(of: .error) == "error")
+    #expect(name(of: .info) == "other")
 }
 
 @Test
@@ -104,6 +95,6 @@ func logLevelRangeAllowUntil() {
 @Test
 func logLevelIsSendable() {
     // Compiles only while LogLevel conforms to Sendable, which consumers need to store levels in a `static let` or pass them into a `Task`.
-    let levels: [any Sendable] = [LogLevel.debug, LogLevel.custom(emoji: "🟣", priority: 200)]
+    let levels: [any Sendable] = [LogLevel.debug, LogLevel(emoji: "🟣", priority: 200)]
     #expect(levels.count == 2)
 }

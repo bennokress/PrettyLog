@@ -32,9 +32,9 @@ Every major version comes with migration notes that list what changed and what y
 
 ## Setup
 
-PrettyLog ships no log target and no global log functions. Your app decides where its log statements go and which of those destinations may receive sensitive data, so it defines both once.
+PrettyLog ships no log target, no log levels and no global log functions. Your app decides where its log statements go, which of those destinations may receive sensitive data and which levels it needs, so it defines all three once.
 
-Every declaration in the samples below is marked `nonisolated`. New Xcode projects make the main actor the default isolation of an app (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`). Without the keyword, your targets, log functions, custom levels and custom categories would belong to the main actor too, and logging from a background task, an actor or a `nonisolated` function would fail with errors like these:
+Every declaration in the samples below is marked `nonisolated`. New Xcode projects make the main actor the default isolation of an app (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`). Without the keyword, your targets, levels, log functions and custom categories would belong to the main actor too, and logging from a background task, an actor or a `nonisolated` function would fail with errors like these:
 
 - `Main actor-isolated global function 'logI(_:sensitiveMessages:joinedBy:category:)' cannot be called from outside of the actor`
 - `Main actor-isolated conformance of 'ConsoleLog' to 'LogTarget' cannot be used in nonisolated context`
@@ -87,15 +87,34 @@ nonisolated struct ConsoleLog: LogTarget {
 - `createLog(_:message:category:)`: builds the log statement and sends it to its destination.
 - `logPriorityRange`: the levels the target accepts. It is optional and allows every level by default.
 
-### 2. Define your log functions
+### 2. Define your log levels
+
+A log level is an emoji and a priority. Targets filter by priority, so give every level its own. This set is a good start:
+
+```swift
+import PrettyLog
+
+nonisolated extension LogLevel {
+
+    static var debug: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
+    static var verbose: LogLevel { LogLevel(emoji: "🔵", priority: 300) }
+    static var info: LogLevel { LogLevel(emoji: "🟢", priority: 500) }
+    static var warning: LogLevel { LogLevel(emoji: "🟡", priority: 700) }
+    static var error: LogLevel { LogLevel(emoji: "🔴", priority: 900) }
+    static var keyEvent: LogLevel { LogLevel(emoji: "📊", priority: .max) }
+
+}
+```
+
+The names are yours. If you would rather name the lower levels after where a statement should end up, see <a href="#semantic-log-levels">'Semantic Log Levels'</a>.
+
+### 3. Define your log functions
 
 Create one Swift file in your app that imports PrettyLog, lists your targets and defines the global log functions you want to use. Every function hands its arguments on to `PrettyLogProxy`, because Swift can't forward variadic parameters from one function to another. With this file in place, no other file in your app needs to import PrettyLog.
 
 ```swift
 import Foundation
 import PrettyLog
-
-// TODO: Decide, if you want to use logD or logX, logV or logS, as well as logI or logP below
 
 /// Log a statement with DEBUG level.
 /// - Parameters:
@@ -105,7 +124,7 @@ import PrettyLog
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logD(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logD(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .debug, category: category, to: logTargets)
 }
 
 /// Log a statement with VERBOSE level.
@@ -116,7 +135,7 @@ nonisolated func logD(_ messages: String?..., sensitiveMessages: String?..., joi
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: logTargets)
 }
 
 /// Log a statement with INFO level.
@@ -127,7 +146,7 @@ nonisolated func logV(_ messages: String?..., sensitiveMessages: String?..., joi
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: logTargets)
 }
 
 /// Log a statement with WARNING level.
@@ -138,7 +157,7 @@ nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joi
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logW(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .warning, category: category, to: logTargets)
 }
 
 /// Log a statement with ERROR level.
@@ -149,7 +168,7 @@ nonisolated func logW(_ messages: String?..., sensitiveMessages: String?..., joi
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 nonisolated func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logE(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: logTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .error, category: category, to: logTargets)
 }
 
 /// Log a Key Event.
@@ -159,7 +178,7 @@ nonisolated func logE(_ messages: String?..., sensitiveMessages: String?..., joi
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
 nonisolated func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logK(messages, joinedBy: separator, category: category, to: logTargets)
+    PrettyLogProxy.log(messages, joinedBy: separator, as: .keyEvent, category: category, to: logTargets)
 }
 
 /// Log an `Error`.
@@ -168,7 +187,7 @@ nonisolated func logK(_ messages: String?..., joinedBy separator: String = " - "
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `error` is `nil`.
 nonisolated func log(_ error: Error?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(error, category: category, to: logTargets)
+    PrettyLogProxy.log(error, as: .error, category: category, to: logTargets)
 }
 
 /// Log a `NSException`.
@@ -177,10 +196,10 @@ nonisolated func log(_ error: Error?, category: LogCategory = .uncategorized) {
 ///   - category: The category of the log statement (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `exception` is `nil`.
 nonisolated func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(exception, category: category, to: logTargets)
+    PrettyLogProxy.log(exception, as: .error, category: category, to: logTargets)
 }
 
-// TODO: Add custom global log methods if needed -> for example: if you have custom LogLevel and LogCategory `.todo`, you could define `logT` for that (see "Custom Log Levels").
+// TODO: Add a log function for every other level you define -> for example `logT` for a level `.todo` (see "Custom Log Levels").
 
 // MARK: - Log Targets
 
@@ -228,15 +247,29 @@ logE("An error log")
 
 ### Semantic Log Levels
 
-Instead of Debug, Verbose and Info, you can also use Xcode, Staging and Production, as well as the Key Event for Statistics Generation.
-
-To call them like below, define `logX`, `logS` and `logP` in your logging file the same way as `logD`, `logV` and `logI`, handing on to `PrettyLogProxy.logX`, `PrettyLogProxy.logS` and `PrettyLogProxy.logP`:
+If your app has a staging environment, you may prefer to name the lower levels after where a statement should end up: Xcode, Staging and Production instead of Debug, Verbose and Info. Define them with the same values in place of `debug`, `verbose` and `info`, and use one set or the other, not both:
 
 ```swift
-logX("A log only to Xcode is basically a debug log")
-logS("A log up to the Staging Environment is basically a verbose log")
-logP("A log up to Production is basically an info log")
+nonisolated extension LogLevel {
 
+    static var xcode: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
+    static var staging: LogLevel { LogLevel(emoji: "🔵", priority: 300) }
+    static var production: LogLevel { LogLevel(emoji: "🟢", priority: 500) }
+
+}
+```
+
+Then name the log functions `logX`, `logS` and `logP`, passing `as: .xcode`, `as: .staging` and `as: .production`:
+
+```swift
+logX("A log only to Xcode")
+logS("A log up to the Staging Environment")
+logP("A log up to Production")
+```
+
+The Key Event from the setup is for statistics. It has the highest priority, so every target that filters by a minimum level receives it:
+
+```swift
 logK("And this is a Key Event Log for statistics")
 ```
 
@@ -305,18 +338,18 @@ nonisolated extension LogCategory {
 
 ### Custom Log Levels
 
-PrettyLog contains a few default Log Levels, but that doesn't mean that you are limited to them. To define your own level extend `LogLevel` like this:
+The levels from the setup are only a suggestion. Add any level you need to the same extension, with its own emoji and a priority that sorts it between the others:
 
 ```swift
 nonisolated extension LogLevel {
 
-    /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method of the proxy though: `PrettyLogProxy.log(["The login method is not yet implemented"], as: .todo, category: .todo, to: logTargets)`
-    static var todo: LogLevel { .custom(emoji: "🟣", priority: 200) }
+    /// Sorts between `debug` and `verbose`.
+    static var todo: LogLevel { LogLevel(emoji: "🟣", priority: 200) }
 
 }
 ```
 
-If you want to use your custom Log Level in line with all the predefined ones, define a global method like `logT` for it in your logging file (see <a href="#setup">'Setup'</a>):
+To use it like the other levels, define a global method like `logT` for it in your logging file (see <a href="#setup">'Setup'</a>):
 
 ```swift
 /// Log messages in the provided order with TODO level

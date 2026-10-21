@@ -5,67 +5,40 @@
 
 import Foundation
 
-/// The Log Level can be used to filter log statements before they are sent to a Log Target. They also use emoji as a way to visually distinguish each of the log statements severity levels. All the default levels use colored circles, but custom Log Levels may use other emoji.
+/// The Log Level can be used to filter log statements before they are sent to a Log Target. It also carries an emoji as a way to visually distinguish the severity of each log statement.
 ///
-/// Custom Log Levels can be defined as an extension on `LogLevel`:
+/// PrettyLog ships no Log Levels. Your app defines the ones it needs as an extension on `LogLevel` and passes them to `PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)`.
+/// The package gives a level no meaning of its own: targets only compare priorities to decide what they log, so it is up to your app what "debug" or "production" means.
 ///
-///     extension LogLevel {
+///     nonisolated extension LogLevel {
 ///
-///         /// This custom level can be used like all the predefined ones, it has to be called with the universal `log` method of the proxy though: `PrettyLogProxy.log(["The login method is not yet implemented"], as: .todo, category: .todo)`
-///         static var todo: LogLevel { .custom(emoji: "🟣", priority: 200) }
+///         static var debug: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
+///         static var info: LogLevel { LogLevel(emoji: "🟢", priority: 500) }
+///         static var error: LogLevel { LogLevel(emoji: "🔴", priority: 900) }
 ///
 ///     }
 ///
-/// - Attention: The level should always be represented by emoji in order to keep the visual design of the log statements consistent, although other characters could be defined for custom levels.
-public enum LogLevel: Sendable {
-
-    case debug
-    case verbose
-    case info
-
-    case xcode
-    case staging
-    case production
-
-    case warning
-    case error
-    case keyEvent
-
-    case custom(emoji: Character, priority: Int)
-
-    // MARK: - Properties & Methods
+/// A target can tell levels apart with `==` or `switch`. Because the levels are values and not enum cases, a `switch` needs a `default` branch.
+///
+/// - Attention: The level should always be represented by emoji in order to keep the visual design of the log statements consistent, although other characters could be used.
+public struct LogLevel: Sendable {
 
     /// The emoji can be used as a quickly glanceable representation of the Log Level in log statements.
-    public var emoji: String {
-        switch self {
-        case .debug: return "🟤"
-        case .xcode: return "🟤"
-        case .verbose: return "🔵"
-        case .staging: return "🔵"
-        case .info: return "🟢"
-        case .production: return "🟢"
-        case .warning: return "🟡"
-        case .error: return "🔴"
-        case .keyEvent: return "📊"
-        case let .custom(emoji, _): return "\(emoji)"
-        }
-    }
+    public var emoji: String { String(emojiCharacter) }
 
     /// The priority can be used to determine which log statement should be sent to a specific target.
-    /// - Attention: Multiple Log Levels will be comparable by priority although they can have the same priority!
-    public var priority: Int {
-        switch self {
-        case .debug: return 100
-        case .xcode: return 100
-        case .verbose: return 300
-        case .staging: return 300
-        case .info: return 500
-        case .production: return 500
-        case .warning: return 700
-        case .error: return 900
-        case .keyEvent: return .max
-        case let .custom(_, priority): return priority
-        }
+    /// - Attention: Two levels with the same priority but different emoji are neither equal nor ordered. Give every level of your app its own priority.
+    public let priority: Int
+
+    private let emojiCharacter: Character
+
+    /// Creates a Log Level.
+    /// - Parameters:
+    ///   - emoji: The emoji shown in log statements of this level
+    ///   - priority: The priority targets use to filter log statements; higher means more important
+    public init(emoji: Character, priority: Int) {
+        self.emojiCharacter = emoji
+        self.priority = priority
     }
 
 }
@@ -113,7 +86,7 @@ public extension Optional where Wrapped == ClosedRange<LogLevel> {
 
 private extension LogLevel {
 
-    static var maxPriority: LogLevel { .custom(emoji: "⏫", priority: Int.max) }
-    static var minPriority: LogLevel { .custom(emoji: "⏬", priority: Int.min) }
+    static var maxPriority: LogLevel { LogLevel(emoji: "⏫", priority: Int.max) }
+    static var minPriority: LogLevel { LogLevel(emoji: "⏬", priority: Int.min) }
 
 }

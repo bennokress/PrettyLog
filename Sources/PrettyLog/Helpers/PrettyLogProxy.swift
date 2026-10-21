@@ -14,120 +14,13 @@ import Foundation
 ///     import PrettyLog
 ///
 ///     nonisolated func logI(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-///         PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: [ConsoleLog(), BackendLog()])
+///         PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: [ConsoleLog(), BackendLog()])
 ///     }
 ///
-/// `ConsoleLog` and `BackendLog` stand for targets your app defines itself by conforming to `LogTarget`. Declare the functions and the targets `nonisolated`:
-/// in an app whose default actor isolation is the main actor they would otherwise only be usable on the main actor. A complete file with a console target,
-/// every log function and a custom level is in the README under "Setup".
+/// `ConsoleLog` and `BackendLog` stand for targets your app defines itself by conforming to `LogTarget`, and `.info` for a `LogLevel` it defines. Declare the functions, the targets and the levels `nonisolated`:
+/// in an app whose default actor isolation is the main actor they would otherwise only be usable on the main actor. A complete file with the levels,
+/// a console target and every log function is in the README under "Setup".
 public struct PrettyLogProxy {
-
-    /// Log a statement with DEBUG level.
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logD(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .debug, category: category, to: targets)
-    }
-
-    /// Log a statement targeting only Xcode (with DEBUG level).
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logX(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .debug, category: category, to: targets)
-    }
-
-    /// Log a statement with VERBOSE level.
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logV(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: targets)
-    }
-
-    /// Log a statement targeting Xcode and the Staging Environment (with VERBOSE level).
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logS(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: targets)
-    }
-
-    /// Log a statement with INFO level.
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logI(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: targets)
-    }
-
-    /// Log a statement targeting all Environments from Xcode to Production (with INFO level).
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logP(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: targets)
-    }
-
-    /// Log a statement with WARNING level.
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logW(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .warning, category: category, to: targets)
-    }
-
-    /// Log a statement with ERROR level.
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func logE(_ messages: [String?], sensitiveMessages: [String?] = [], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .error, category: category, to: targets)
-    }
-
-    /// Log a Key Event.
-    /// - Parameters:
-    ///   - messages: One or more strings and string-convertible objects to include in the log statement
-    ///   - separator: The separator between messages (defaults to `" - "`)
-    ///   - category: The category of the log statement (defaults to `.uncategorized`)
-    ///   - targets: The targets this log statement is sent to
-    /// - Attention: No log will be created, if `messages`is empty or consist only of `nil`-elements!
-    public static func logK(_ messages: [String?], joinedBy separator: String = " - ", category: LogCategory = .uncategorized, to targets: [LogTarget]) {
-        log(messages, joinedBy: separator, as: .keyEvent, category: category, to: targets)
-    }
 
     /// Log an `Error`.
     ///
@@ -135,11 +28,11 @@ public struct PrettyLogProxy {
     /// the complete URL of a `URLError` and every associated value of a custom error enum. Targets that can't log sensitive information only receive the `localizedDescription`.
     /// - Parameters:
     ///   - error: The error to log
-    ///   - level: The level to log with (defaults to `.error`)
+    ///   - level: The level to log with
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     ///   - targets: The targets this log statement is sent to
     /// - Attention: No log will be created, if `error` is `nil`.
-    public static func log(_ error: Error?, as level: LogLevel = .error, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
+    public static func log(_ error: Error?, as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
         guard let error else { return }
         let assembler = LogStatementAssembler(message: error.localizedDescription, sensitiveMessage: "\(error)")
         log(level, statementAssembler: assembler, category: category, to: targets)
@@ -151,11 +44,11 @@ public struct PrettyLogProxy {
     /// Targets that can't log sensitive information only receive the `name`.
     /// - Parameters:
     ///   - exception: The exception to log
-    ///   - level: The level to log with (defaults to `.error`)
+    ///   - level: The level to log with
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     ///   - targets: The targets this log statement is sent to
     /// - Attention: No log will be created, if `exception` is `nil`.
-    public static func log(_ exception: NSException?, as level: LogLevel = .error, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
+    public static func log(_ exception: NSException?, as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
         guard let exception else { return }
         let userInfo = exception.userInfo.map { "\($0)" }
         let assembler = LogStatementAssembler(messages: [exception.name.rawValue], sensitiveMessages: [exception.reason, userInfo])
