@@ -54,7 +54,7 @@ nonisolated struct ConsoleLog: LogTarget {
 
     var canLogSensitiveInformation: Bool { isDebugApp }
 
-    func createLog(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: LogLevel, message: String, category: LogCategory) {
         print("\(prefix(level: level, category: category)) \(message)")
     }
 
@@ -84,7 +84,7 @@ nonisolated struct ConsoleLog: LogTarget {
 `LogTarget` has three requirements:
 
 - `canLogSensitiveInformation`: if `false`, the target never receives the sensitive part of a log statement.
-- `createLog(_:message:category:)`: builds the log statement and sends it to its destination.
+- `emit(_:message:category:)`: gives the log statement its form and passes it on to its destination.
 - `levelFilter`: the levels the target accepts, for example `.from(.info)`. It is optional and accepts every level by default.
 
 ### 2. Define your log levels
@@ -406,7 +406,7 @@ nonisolated struct BackendLog: LogTarget {
 
     var levelFilter: LogLevelFilter { .from(.info) }
 
-    func createLog(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: LogLevel, message: String, category: LogCategory) {
         // Send the statement to your backend
     }
 

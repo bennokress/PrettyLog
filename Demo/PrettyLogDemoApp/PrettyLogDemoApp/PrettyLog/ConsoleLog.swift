@@ -24,7 +24,7 @@ struct ConsoleLog: LogTarget {
 
     // MARK: - LogTarget Implementation
 
-    func createLog(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: LogLevel, message: String, category: LogCategory) {
         print("\(prefix(level: level, category: category)) \(message)")
     }
 

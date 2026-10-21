@@ -13,7 +13,7 @@ class MockLogTarget: LogTarget {
     var levelFilter: LogLevelFilter = .all
     var capturedLogs: [(LogLevel, String, LogCategory)] = []
 
-    func createLog(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: LogLevel, message: String, category: LogCategory) {
         capturedLogs.append((level, message, category))
     }
 }
@@ -275,7 +275,7 @@ func prettyLogProxyFilteredByPriority() {
 
 private struct SendableLogTarget: LogTarget {
     let canLogSensitiveInformation = false
-    func createLog(_ level: LogLevel, message: String, category: LogCategory) { }
+    func emit(_ level: LogLevel, message: String, category: LogCategory) { }
 }
 
 /// The README suggests keeping targets in a constant of type `[any LogTarget & Sendable]`. This compiles only while such a list can be passed to the proxy.

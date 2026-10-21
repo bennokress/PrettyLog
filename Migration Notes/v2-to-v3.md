@@ -24,6 +24,7 @@ Applies to every 3.x release.
 - [ ] [Pass your targets to every `PrettyLogProxy` call](#6-pass-your-targets-to-every-prettylogproxy-call)
 - [ ] [Check what your targets receive from errors and exceptions](#7-check-what-your-targets-receive-from-errors-and-exceptions)
 - [ ] [Filter levels with `LogLevelFilter`](#8-filter-levels-with-loglevelfilter)
+- [ ] [Rename `createLog` to `emit` in your targets](#9-rename-createlog-to-emit-in-your-targets)
 
 ## Breaking changes
 
@@ -54,7 +55,7 @@ nonisolated struct ConsoleLog: LogTarget {
 
     var canLogSensitiveInformation: Bool { isDebugApp }
 
-    func createLog(_ level: LogLevel, message: String, category: LogCategory) { … }
+    func emit(_ level: LogLevel, message: String, category: LogCategory) { … }
 
 }
 ```
@@ -239,6 +240,22 @@ var logPriorityRange: ClosedRange<LogLevel>? { .allowFrom(min: .info) }
 
 // After (3.x)
 var levelFilter: LogLevelFilter { .from(.info) }
+```
+
+### 9. Rename `createLog` to `emit` in your targets
+
+**Affects you if** you have a log target of your own, which every app has, see step 2.
+
+**What changed:** The `LogTarget` requirement `createLog(_:message:category:)` is now `emit(_:message:category:)`. It gives the statement its form and passes it on, but it creates nothing the caller gets back, so the old name was misleading. The parameters are the same. There is no deprecated forward: a target that still implements `createLog` no longer conforms to `LogTarget` and doesn't compile.
+
+**What to do:** Rename the method in every target.
+
+```swift
+// Before (2.x)
+func createLog(_ level: LogLevel, message: String, category: LogCategory) { … }
+
+// After (3.x)
+func emit(_ level: LogLevel, message: String, category: LogCategory) { … }
 ```
 
 ## New and optional

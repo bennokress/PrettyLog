@@ -91,7 +91,7 @@ public struct PrettyLogProxy {
     /// - Attention: No log will be created, if `messages` and `sensitiveMessages` inside the `statementAssembler` are both empty or consist only of `nil`-elements.
     private static func log(_ level: LogLevel, statementAssembler: LogStatementAssembler, category: LogCategory, to targets: [LogTarget]) {
         for target in targets {
-            target.log(level, messages: statementAssembler, category: category)
+            target.deliver(level, statement: statementAssembler, category: category)
         }
     }
 
