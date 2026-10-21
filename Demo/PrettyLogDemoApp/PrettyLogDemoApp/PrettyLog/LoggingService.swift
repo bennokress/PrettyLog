@@ -6,13 +6,37 @@
 import Foundation
 import PrettyLog
 
-// MARK: - Custom Log Levels
+// MARK: - Log Levels
 
 extension LogLevel {
-    
+
+    static var debug: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
+    static var verbose: LogLevel { LogLevel(emoji: "🔵", priority: 300) }
+    static var info: LogLevel { LogLevel(emoji: "🟢", priority: 500) }
+    static var warning: LogLevel { LogLevel(emoji: "🟡", priority: 700) }
+    static var error: LogLevel { LogLevel(emoji: "🔴", priority: 900) }
+    static var keyEvent: LogLevel { LogLevel(emoji: "📊", priority: .max) }
+
     /// This custom level can be used for TODO items
-    static var todo: LogLevel { .custom(emoji: "🟣", priority: 200) }
-    
+    static var todo: LogLevel { LogLevel(emoji: "🟣", priority: 200) }
+
+}
+
+// MARK: - Log Categories
+
+extension LogCategory {
+
+    static var appState: LogCategory { LogCategory("App State") }
+    static var debug: LogCategory { LogCategory("Debug") }
+    static var general: LogCategory { LogCategory("General") }
+    static var manager: LogCategory { LogCategory("Manager") }
+    static var service: LogCategory { LogCategory("Service") }
+    static var storage: LogCategory { LogCategory("Storage") }
+    static var user: LogCategory { LogCategory("User Action") }
+    static var view: LogCategory { LogCategory("View") }
+    static var demo: LogCategory { LogCategory("Demo") }
+    static var todo: LogCategory { LogCategory("To Do") }
+
 }
 
 // MARK: - Global Logging Methods
@@ -25,7 +49,7 @@ extension LogLevel {
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logX(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .debug, category: category, to: defaultTargets)
 }
 
 /// Log a statement with VERBOSE level
@@ -36,7 +60,7 @@ func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logV(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: defaultTargets)
 }
 
 /// Log a statement targeting Xcode and the Staging Environment (with VERBOSE level)
@@ -47,7 +71,7 @@ func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logS(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logS(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: defaultTargets)
 }
 
 /// Log a statement targeting all Environments from Xcode to Production (with INFO level)
@@ -58,7 +82,7 @@ func logS(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logP(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logP(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: defaultTargets)
 }
 
 /// Log a statement with WARNING level
@@ -69,7 +93,7 @@ func logP(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logW(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .warning, category: category, to: defaultTargets)
 }
 
 /// Log a statement with ERROR level
@@ -80,7 +104,7 @@ func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
 func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logE(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, category: category, to: defaultTargets)
+    PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .error, category: category, to: defaultTargets)
 }
 
 /// Log a Key Event
@@ -90,7 +114,7 @@ func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
 func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-    PrettyLogProxy.logK(messages, joinedBy: separator, category: category, to: defaultTargets)
+    PrettyLogProxy.log(messages, joinedBy: separator, as: .keyEvent, category: category, to: defaultTargets)
 }
 
 /// Log a statement with TODO level
@@ -110,7 +134,7 @@ func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `error` is `nil`
 func log(_ error: Error?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(error, category: category, to: defaultTargets)
+    PrettyLogProxy.log(error, as: .error, category: category, to: defaultTargets)
 }
 
 /// Log a `NSException`
@@ -119,7 +143,7 @@ func log(_ error: Error?, category: LogCategory = .uncategorized) {
 ///   - category: The category of the log statement (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `exception` is `nil`
 func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(exception, category: category, to: defaultTargets)
+    PrettyLogProxy.log(exception, as: .error, category: category, to: defaultTargets)
 }
 
 // MARK: - Default Targets

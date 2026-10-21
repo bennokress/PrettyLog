@@ -23,7 +23,7 @@ struct BackendLog: LogTarget {
     // MARK: - LogTarget Implementation
     
     func createLog(_ level: LogLevel, message: String, category: LogCategory) {
-        let logEntry = BackendLogEntry(timestamp: Date(), level: level.emoji + " " + String(describing: level), category: category.name, message: message, deviceInfo: getDeviceInfo())
+        let logEntry = BackendLogEntry(timestamp: Date(), level: "\(level.emoji) \(level.priority)", category: category.name, message: message, deviceInfo: getDeviceInfo())
         sendToBackend(logEntry)
     }
     

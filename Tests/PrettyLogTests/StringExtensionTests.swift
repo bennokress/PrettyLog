@@ -9,24 +9,6 @@ import Testing
 @testable import PrettyLog
 
 @Test
-func stringCombiningVariadic() {
-    let result = String.combining("Hello", "World", using: " ")
-    #expect(result == "Hello World")
-}
-
-@Test
-func stringCombiningVariadicOptional() {
-    let result = String.combining("Hello", nil, "World", using: " ")
-    #expect(result == "Hello World")
-}
-
-@Test
-func stringCombiningArray() {
-    let result = String.combining(["Hello", "World"], using: " ")
-    #expect(result == "Hello World")
-}
-
-@Test
 func stringCombiningOptionalArray() {
     let result = String.combining(["Hello", nil, "World"], using: " ")
     #expect(result == "Hello World")
@@ -41,13 +23,19 @@ func stringCombiningAllNil() {
 @Test
 func stringCombiningEmptyArray() {
     let result = String.combining([], using: " ")
-    #expect(result == "")
+    #expect(result == nil)
 }
 
 @Test
 func stringCombiningEmptyStrings() {
     let result = String.combining(["", "", ""], using: " ")
-    #expect(result == "  ")
+    #expect(result == nil)
+}
+
+@Test
+func stringCombiningSkipsEmptyStringsBetweenValues() {
+    let result = String.combining(["A", "", "B"], using: " ")
+    #expect(result == "A B")
 }
 
 @Test
@@ -94,6 +82,18 @@ func stringTruncateOrPadVeryShort() {
     let result = text.truncateOrPad(to: 1)
     #expect(result == "…")
     #expect(result.count == 1)
+}
+
+@Test
+func stringTruncateOrPadZeroLength() {
+    #expect("Hello".truncateOrPad(to: 0) == "")
+    #expect("".truncateOrPad(to: 0) == "")
+}
+
+@Test
+func stringTruncateOrPadNegativeLength() {
+    #expect("Hello".truncateOrPad(to: -3) == "")
+    #expect("".truncateOrPad(to: -3) == "")
 }
 
 @Test
