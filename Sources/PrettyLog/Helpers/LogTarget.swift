@@ -27,6 +27,10 @@ public protocol LogTarget {
     func createLog(_ level: LogLevel, message: String, category: LogCategory)
 
     /// The range of Log Levels that will be processed by this Log Target. This will default to every possible value if not specified otherwise.
+    ///
+    /// - Important: The lower bound of the range must not have a higher priority than the upper bound.
+    ///   A reversed range like `.warning ... .debug` stops the app at runtime the first time this target logs, in debug and release builds alike.
+    ///   The helpers `.allowAll`, `.allowNone`, `.allowFrom(min:)` and `.allowUntil(max:)` always produce a valid range.
     var logPriorityRange: ClosedRange<LogLevel>? { get }
 
 }
