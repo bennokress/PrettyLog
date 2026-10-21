@@ -39,7 +39,7 @@ public struct PrettyLogProxy {
     /// - Attention: No log will be created, if `error` is `nil`.
     public static func log(_ error: Error?, as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
         guard let error else { return }
-        let assembler = LogStatementAssembler(message: publicDescription(of: error), sensitiveMessage: "\(error)")
+        let assembler = LogStatementAssembler(messages: [publicDescription(of: error)], sensitiveMessages: ["\(error)"])
         log(level, statementAssembler: assembler, category: category, to: targets)
     }
 

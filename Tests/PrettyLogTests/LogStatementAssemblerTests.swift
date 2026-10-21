@@ -31,28 +31,6 @@ func logStatementAssemblerWithSensitiveData() {
 }
 
 @Test
-func logStatementAssemblerSingleMessageInit() {
-    let assembler = LogStatementAssembler(message: "Single message")
-    let result = assembler.assembleLogStatement(includingSensitiveData: false)
-    #expect(result == "Single message")
-}
-
-@Test
-func logStatementAssemblerMessageWithSensitiveInit() {
-    let assembler = LogStatementAssembler(
-        message: "Public",
-        sensitiveMessage: "Private",
-        separator: " :: "
-    )
-
-    let withSensitive = assembler.assembleLogStatement(includingSensitiveData: true)
-    #expect(withSensitive == "Public :: Private")
-
-    let withoutSensitive = assembler.assembleLogStatement(includingSensitiveData: false)
-    #expect(withoutSensitive == "Public")
-}
-
-@Test
 func logStatementAssemblerEmptyMessages() {
     let assembler = LogStatementAssembler(messages: [], sensitiveMessages: [])
     let result = assembler.assembleLogStatement(includingSensitiveData: false)

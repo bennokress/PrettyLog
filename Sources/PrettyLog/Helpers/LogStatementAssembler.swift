@@ -17,18 +17,6 @@ struct LogStatementAssembler {
         self.separator = separator
     }
 
-    init(message: String, sensitiveMessages: [String?] = [], separator: String = " - ") {
-        self.init(messages: [message], sensitiveMessages: sensitiveMessages, separator: separator)
-    }
-
-    init(messages: [String?] = [], sensitiveMessage: String, separator: String = " - ") {
-        self.init(messages: messages, sensitiveMessages: [sensitiveMessage], separator: separator)
-    }
-
-    init(message: String, sensitiveMessage: String, separator: String = " - ") {
-        self.init(messages: [message], sensitiveMessages: [sensitiveMessage], separator: separator)
-    }
-
     func assembleLogStatement(includingSensitiveData shouldContainSensitiveData: Bool) -> String? {
         String.combining(shouldContainSensitiveData ? [message, sensitiveMessage] : [message], using: separator)
     }
