@@ -228,8 +228,8 @@ enum LogCategoryOption: CaseIterable {
         case .uncategorized: return .uncategorized
         case .user: return .user
         case .view: return .view
-        case .demo: return .custom("Demo")
-        case .todo: return .custom("To Do")
+        case .demo: return .demo
+        case .todo: return .todo
         }
     }
 

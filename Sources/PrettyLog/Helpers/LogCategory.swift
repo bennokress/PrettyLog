@@ -7,29 +7,28 @@ import Foundation
 
 /// The Log Category can be used as a title of each log statement.
 ///
-/// Custom Log Categories can be defined as an extension on `LogCategory`:
+/// PrettyLog ships no Log Categories apart from `.uncategorized`, which stands for a log statement without a category. Your app defines the ones it needs as an extension on `LogCategory` and passes them to `PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)`.
 ///
-///     extension LogCategory {
+///     nonisolated extension LogCategory {
 ///
-///         /// This custom category can be used like all the predefined ones: logV("The login method is not yet implemented", category: .todo)
-///         static var todo: LogCategory { .custom("To Do") }
+///         static var storage: LogCategory { LogCategory("Storage") }
+///         static var todo: LogCategory { LogCategory("To Do") }
 ///
 ///     }
 ///
+/// Two categories are equal when their names are equal, so a target can compare a category with `==` or use it as a dictionary key.
+///
 /// - Attention: For the default `PrettyLog`s default Console Log the name of the category will always be truncated to 20 characters in order to keep the visual design of the log statements consistent.
-public enum LogCategory: Sendable {
+public struct LogCategory: Sendable, Hashable {
 
-    case appState
-    case debug
-    case general
-    case manager
-    case service
-    case storage
-    case uncategorized
-    case user
-    case view
+    /// The name of the Log Category that can be used in log statements.
+    public let name: String
 
-    case custom(_ name: String)
+    /// Creates a Log Category.
+    /// - Parameter name: The name shown as the title of log statements in this category
+    public init(_ name: String) {
+        self.name = name
+    }
 
     // MARK: - Properties & Methods
 
@@ -39,20 +38,9 @@ public enum LogCategory: Sendable {
     /// - Parameter fixedLength: The desired fixed length of the output. A length of 0 or less returns an empty String.
     public func truncatedOrPadded(to fixedLength: Int) -> String { name.truncateOrPad(to: fixedLength) }
 
-    /// The name of the LogCategory that can be used in log statements.
-    public var name: String {
-        switch self {
-        case .appState: return "App State"
-        case .debug: return "Debug"
-        case .general: return "General"
-        case .manager: return "Manager"
-        case .service: return "Service"
-        case .storage: return "Storage"
-        case .uncategorized: return ""
-        case .user: return "User Action"
-        case .view: return "View"
-        case let .custom(name): return name
-        }
-    }
+}
 
+public extension LogCategory {
+    /// The category of a log statement without a category. Its name is empty, and it is the default of every `category:` parameter in `PrettyLogProxy`.
+    static var uncategorized: LogCategory { LogCategory("") }
 }

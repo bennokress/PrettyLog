@@ -32,9 +32,9 @@ Every major version comes with migration notes that list what changed and what y
 
 ## Setup
 
-PrettyLog ships no log target, no log levels and no global log functions. Your app decides where its log statements go, which of those destinations may receive sensitive data and which levels it needs, so it defines all three once.
+PrettyLog ships no log target, no log levels, no log categories and no global log functions. Your app decides where its log statements go, which of those destinations may receive sensitive data, which levels it needs and how it titles its statements, so it defines all four once.
 
-Every declaration in the samples below is marked `nonisolated`. New Xcode projects make the main actor the default isolation of an app (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`). Without the keyword, your targets, levels, log functions and custom categories would belong to the main actor too, and logging from a background task, an actor or a `nonisolated` function would fail with errors like these:
+Every declaration in the samples below is marked `nonisolated`. New Xcode projects make the main actor the default isolation of an app (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`). Without the keyword, your targets, levels, categories and log functions would belong to the main actor too, and logging from a background task, an actor or a `nonisolated` function would fail with errors like these:
 
 - `Main actor-isolated global function 'logI(_:sensitiveMessages:joinedBy:category:)' cannot be called from outside of the actor`
 - `Main actor-isolated conformance of 'ConsoleLog' to 'LogTarget' cannot be used in nonisolated context`
@@ -108,7 +108,28 @@ nonisolated extension LogLevel {
 
 The names are yours. If you would rather name the lower levels after where a statement should end up, see <a href="#semantic-log-levels">'Semantic Log Levels'</a>.
 
-### 3. Define your log functions
+### 3. Define your log categories
+
+A log category is a name that titles a log statement. The only one PrettyLog brings along is `.uncategorized`, the empty title of a statement without a category. This set is a good start:
+
+```swift
+import PrettyLog
+
+nonisolated extension LogCategory {
+
+    static var appState: LogCategory { LogCategory("App State") }
+    static var debug: LogCategory { LogCategory("Debug") }
+    static var general: LogCategory { LogCategory("General") }
+    static var manager: LogCategory { LogCategory("Manager") }
+    static var service: LogCategory { LogCategory("Service") }
+    static var storage: LogCategory { LogCategory("Storage") }
+    static var user: LogCategory { LogCategory("User Action") }
+    static var view: LogCategory { LogCategory("View") }
+
+}
+```
+
+### 4. Define your log functions
 
 Create one Swift file in your app that imports PrettyLog, lists your targets and defines the global log functions you want to use. Every function hands its arguments on to `PrettyLogProxy`, because Swift can't forward variadic parameters from one function to another. With this file in place, no other file in your app needs to import PrettyLog.
 
@@ -282,7 +303,7 @@ logV("Got an API Response ...", category: .service)
 logV("Saving Token from API: \(token)", category: .storage)
 logI("User tapped Continue Button", category: .user)
 logE("Username and Password did not match", category: .manager)
-logW("Or create your own Category ...", category: .custom("Announcement"))
+logW("Or create a Category on the spot ...", category: LogCategory("Announcement"))
 ```
 
 <img alt="Console Output of multiple PrettyLog statements with different Log Categories" src="Assets/README/5-Log-Categories.png" />
@@ -296,7 +317,7 @@ logV("Got an API Response ...", category: .service)
 logI("Saving Token from API", sensitiveMessages: token, category: .storage)
 logI("User tapped Continue Button", category: .user)
 logE("Username and Password did not match", category: .manager)
-logW("Or create your own Category ...", category: .custom("Announcement"))
+logW("Or create a Category on the spot ...", category: LogCategory("Announcement"))
 ```
 
 <img alt="The same Log Statements as before, but the Token is now marked as sensitive data and can be sent to Production like that" src="Assets/README/6-Sensitive-Data.png" />
@@ -325,16 +346,18 @@ log(exception, category: .service)
 
 ### Custom Log Categories
 
-Included in PrettyLog are the categories that I use routinely. Those may differ from what is useful in your project, so I made it easy for you to define your own categories. Simply extend `LogCategory` like this:
+The categories from the setup are only a suggestion. Add any category you need to the same extension:
 
 ```swift
 nonisolated extension LogCategory {
 
-    /// This custom category can be used like all the predefined ones: logV("Running Unit Tests ...", category: .todo)
-    static var todo: LogCategory { .custom("To Do") }
+    /// This category can be used like all the others: logV("Running Unit Tests ...", category: .todo)
+    static var todo: LogCategory { LogCategory("To Do") }
 
 }
 ```
+
+A target can compare categories with `==`, for example to send only `.storage` statements to a separate file.
 
 ### Custom Log Levels
 

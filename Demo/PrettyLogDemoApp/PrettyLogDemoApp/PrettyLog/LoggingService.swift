@@ -22,6 +22,23 @@ extension LogLevel {
 
 }
 
+// MARK: - Log Categories
+
+extension LogCategory {
+
+    static var appState: LogCategory { LogCategory("App State") }
+    static var debug: LogCategory { LogCategory("Debug") }
+    static var general: LogCategory { LogCategory("General") }
+    static var manager: LogCategory { LogCategory("Manager") }
+    static var service: LogCategory { LogCategory("Service") }
+    static var storage: LogCategory { LogCategory("Storage") }
+    static var user: LogCategory { LogCategory("User Action") }
+    static var view: LogCategory { LogCategory("View") }
+    static var demo: LogCategory { LogCategory("Demo") }
+    static var todo: LogCategory { LogCategory("To Do") }
+
+}
+
 // MARK: - Global Logging Methods
 
 /// Log a statement targeting only Xcode (with DEBUG level)

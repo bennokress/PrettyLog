@@ -19,9 +19,10 @@ Applies to every 3.x release.
 - [ ] [Use Xcode 26 and raise watchOS to 9](#1-use-xcode-26-and-raise-watchos-to-9)
 - [ ] [Define your own log targets](#2-define-your-own-log-targets)
 - [ ] [Define your own log levels](#3-define-your-own-log-levels)
-- [ ] [Define your own log functions](#4-define-your-own-log-functions)
-- [ ] [Pass your targets to every `PrettyLogProxy` call](#5-pass-your-targets-to-every-prettylogproxy-call)
-- [ ] [Check what your targets receive from errors and exceptions](#6-check-what-your-targets-receive-from-errors-and-exceptions)
+- [ ] [Define your own log categories](#4-define-your-own-log-categories)
+- [ ] [Define your own log functions](#5-define-your-own-log-functions)
+- [ ] [Pass your targets to every `PrettyLogProxy` call](#6-pass-your-targets-to-every-prettylogproxy-call)
+- [ ] [Check what your targets receive from errors and exceptions](#7-check-what-your-targets-receive-from-errors-and-exceptions)
 
 ## Breaking changes
 
@@ -116,13 +117,51 @@ default: logger.notice("\(message)")
 }
 ```
 
-### 4. Define your own log functions
+### 4. Define your own log categories
+
+**Affects you if** you use a predefined category such as `.service`, `.storage` or `.user`, or create one with `.custom(_:)`. `.uncategorized` is the one exception: it still exists and is still the default of every `category:` parameter.
+
+**What changed:** PrettyLog ships no log categories anymore apart from `.uncategorized`. `LogCategory` is a struct with a name, and your app defines the categories it uses. `.custom(_:)` is gone. Two categories with the same name are equal, and `LogCategory` is `Hashable`, so a target can compare categories with `==` instead of a `switch`.
+
+**What to do:**
+
+1. Define your categories in an extension on `LogCategory`, as in step 3 of "Setup" in the README. With the names below, the console output stays as it was. Copy only the ones you use.
+
+    | 2.x category | 3.x definition |
+    | --- | --- |
+    | `.appState` | `LogCategory("App State")` |
+    | `.debug` | `LogCategory("Debug")` |
+    | `.general` | `LogCategory("General")` |
+    | `.manager` | `LogCategory("Manager")` |
+    | `.service` | `LogCategory("Service")` |
+    | `.storage` | `LogCategory("Storage")` |
+    | `.user` | `LogCategory("User Action")` |
+    | `.view` | `LogCategory("View")` |
+
+2. Replace `.custom(name)` with `LogCategory(name)`.
+3. A `switch` over the category needs a `default` branch now, because categories are values and not enum cases. A `switch` that already has one compiles unchanged.
+4. Declare the extension `nonisolated` if your app makes the main actor its default isolation.
+
+```swift
+// Before (2.x)
+extension LogCategory {
+    static var todo: LogCategory { .custom("To Do") }
+}
+
+// After (3.x)
+nonisolated extension LogCategory {
+    static var storage: LogCategory { LogCategory("Storage") }
+    static var todo: LogCategory { LogCategory("To Do") }
+}
+```
+
+### 5. Define your own log functions
 
 **Affects you if** you call `logD`, `logX`, `logV`, `logI`, `logW`, `logE`, `logK` or `log` from PrettyLog directly, usually in files that `import PrettyLog`.
 
 **What changed:** PrettyLog has no global log functions anymore. `PrettyLogProxy` is the only entry point.
 
-**What to do:** Add one file to your app that defines the log functions you use and the list of targets they send to. The README has a complete file under "Setup". Your call sites stay the same, and the other files no longer need `import PrettyLog`. If you already have such a file, only steps 3 and 5 apply to you. Mark the functions and the list of targets `nonisolated`, as in the sample below. In an app whose default isolation is the main actor they would otherwise only be callable from the main actor; in other apps the keyword changes nothing.
+**What to do:** Add one file to your app that defines the log functions you use and the list of targets they send to. The README has a complete file under "Setup". Your call sites stay the same, and the other files no longer need `import PrettyLog`. If you already have such a file, only steps 3, 4 and 6 apply to you. Mark the functions and the list of targets `nonisolated`, as in the sample below. In an app whose default isolation is the main actor they would otherwise only be callable from the main actor; in other apps the keyword changes nothing.
 
 ```swift
 // Before (2.x): any file
@@ -145,7 +184,7 @@ nonisolated private var logTargets: [LogTarget] {
 logI("User tapped Continue Button", category: .user)
 ```
 
-### 5. Pass your targets to every `PrettyLogProxy` call
+### 6. Pass your targets to every `PrettyLogProxy` call
 
 **Affects you if** you call a method of `PrettyLogProxy` without the `to:` argument.
 
@@ -161,7 +200,7 @@ PrettyLogProxy.logI(messages, sensitiveMessages: sensitiveMessages, joinedBy: se
 PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: logTargets)
 ```
 
-### 6. Check what your targets receive from errors and exceptions
+### 7. Check what your targets receive from errors and exceptions
 
 **Affects you if** you log errors or exceptions and evaluate the resulting statements, for example in a backend, or rely on the full details reaching a target whose `canLogSensitiveInformation` is `false`.
 
@@ -181,6 +220,6 @@ For an error that is neither a `LocalizedError` nor an `NSError`, Foundation's `
 
 ### `LogLevel` and `LogCategory` are `Sendable`
 
-You can now keep levels and categories in a `static let` or pass them into a `Task` in the Swift 6 language mode, including the levels and custom categories your app defines. Nothing to change.
+You can now keep levels and categories in a `static let` or pass them into a `Task` in the Swift 6 language mode, including the levels and categories your app defines. Nothing to change.
 
 `LogTarget` still doesn't require `Sendable`, so your existing targets keep compiling. If you want to keep your targets in a `static let` or hand them across isolation boundaries, make your target types `Sendable` yourself, see "Keeping Targets in a Constant" in the README.
