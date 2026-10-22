@@ -98,7 +98,7 @@ logI("Saving Token from API", sensitiveMessages: token, category: .storage)
 
 ### Semantic log levels
 
-Three levels name the environment a statement is meant for. In our team at work this has been established to make clear which level is appropriate for a log message. Each has the same emoji and priority as an existing level, but is a separate case, so `LogLevel.xcode == LogLevel.debug` is `false`.
+Three levels name the environment a statement is meant for, to make clear which level is appropriate for a log message. Each has the same emoji and priority as an existing level, but is a separate case, so `LogLevel.xcode == LogLevel.debug` is `false`.
 
 - 🟤 `.xcode`: same emoji and priority as `.debug`
 - 🔵 `.staging`: same emoji and priority as `.verbose`

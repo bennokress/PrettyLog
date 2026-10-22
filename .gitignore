@@ -2,20 +2,6 @@
 # Custom to this Project
 ############################################################
 
-# Individualization
-#############################
-SecureGo/Resources/Active
-
-# KFTheme Script
-#############################
-Utils/Illustration\ Theming/KFTheme\ Input/Input/*.svg
-Utils/Illustration\ Theming/KFTheme\ Input/Output
-Utils/Illustration\ Theming/KFTheme\ Input/Templates
-
-# Post Build Action (Promon)
-#############################
-*.log
-
 #LicensePlist
 #############################
 Build\ Phase\ Output

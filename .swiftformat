@@ -81,7 +81,7 @@
 --disable genericExtensions                 # -> Writing "where …" is more swifty and expressive than "<…>" in our opinion
 --disable headerFileName                    # -> By using the fileHeader rule we already ensure that the filename in the header is correct
 --disable indent 							# -> This destroys clarity in too many cases
---disable numberFormatting 					# -> When working on banking related projects we have different formatting for things like bank codes than we have on normal numbers. Those can't be automatically detected.
+--disable numberFormatting 					# -> Some projects format numbers with a fixed meaning, like codes, differently from normal numbers. Those can't be automatically detected.
 --disable sortDeclarations					# -> Too much overhead having to write // swiftformat:sort in files
 --disable trailingCommas 					# -> A comma after the last element of a collection is never necessary
 --disable unusedArguments					# -> This destroys some Protocol implementations (applicationDidLaunch etc.)
