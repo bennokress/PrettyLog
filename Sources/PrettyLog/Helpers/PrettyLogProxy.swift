@@ -14,10 +14,12 @@ import Foundation
 ///     import PrettyLog
 ///
 ///     nonisolated func logI(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
-///         PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: [ConsoleLog(), BackendLog()])
+///         PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: logTargets)
 ///     }
 ///
-/// `ConsoleLog` and `BackendLog` stand for targets your app defines itself by conforming to `LogTarget`, and `.info` for a `LogLevel` it defines. Declare the functions, the targets and the levels `nonisolated`:
+///     nonisolated var logTargets: [any LogTarget<AppLogLevel>] { [ConsoleLog(), BackendLog()] }
+///
+/// `ConsoleLog` and `BackendLog` stand for targets your app defines itself by conforming to `LogTarget`, and `.info` for a case of `AppLogLevel`, the enum your app declares with `@LogLevels`. Swift infers the level type from `as:` and `to:`, so the call never names it. Declare the functions, the targets and the levels `nonisolated`:
 /// in an app whose default actor isolation is the main actor they would otherwise only be usable on the main actor. A complete file with the levels,
 /// a console target and every log function is in the README under "Setup".
 public struct PrettyLogProxy {
@@ -34,7 +36,7 @@ public struct PrettyLogProxy {
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
     /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-    public static func log(_ messages: [(any CustomStringConvertible)?], sensitiveMessages: [(any CustomStringConvertible)?] = [], joinedBy separator: String = " - ", as level: LogLevel, category: LogCategory = .uncategorized, to targets: [LogTarget]) {
+    public static func log<Level: LogLevel>(_ messages: [(any CustomStringConvertible)?], sensitiveMessages: [(any CustomStringConvertible)?] = [], joinedBy separator: String = " - ", as level: Level, category: LogCategory = .uncategorized, to targets: [any LogTarget<Level>]) {
         let assembler = LogStatementAssembler(messages: messages.map { $0?.description }, sensitiveMessages: sensitiveMessages.map { $0?.description }, separator: separator)
         log(level, statementAssembler: assembler, category: category, to: targets)
     }
@@ -48,7 +50,7 @@ public struct PrettyLogProxy {
     ///   - category: The category of the log statement (defaults to `.uncategorized`)
     ///   - targets: The targets this log statement is sent to; an empty array logs nothing, so an app can switch logging off this way
     /// - Attention: No log will be created, if `messages` and `sensitiveMessages` inside the `statementAssembler` are both empty or consist only of `nil`-elements.
-    private static func log(_ level: LogLevel, statementAssembler: LogStatementAssembler, category: LogCategory, to targets: [LogTarget]) {
+    private static func log<Level: LogLevel>(_ level: Level, statementAssembler: LogStatementAssembler, category: LogCategory, to targets: [any LogTarget<Level>]) {
         for target in targets {
             target.deliver(level, statement: statementAssembler, category: category)
         }

@@ -8,17 +8,18 @@ import PrettyLog
 
 // MARK: - Log Levels
 
-extension LogLevel {
+/// The raw value of each case is its priority, so the cases can be sorted alphabetically.
+@LogLevels
+enum AppLogLevel: Int {
 
-    static var debug: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
-    static var verbose: LogLevel { LogLevel(emoji: "🔵", priority: 300) }
-    static var info: LogLevel { LogLevel(emoji: "🟢", priority: 500) }
-    static var warning: LogLevel { LogLevel(emoji: "🟡", priority: 700) }
-    static var error: LogLevel { LogLevel(emoji: "🔴", priority: 900) }
-    static var keyEvent: LogLevel { LogLevel(emoji: "📊", priority: .max) }
-
+    @Emoji("🟤") case debug = 100
+    @Emoji("🔴") case error = 900
+    @Emoji("🟢") case info = 500
+    @Emoji("📊") case keyEvent = 1000
     /// This custom level can be used for TODO items
-    static var todo: LogLevel { LogLevel(emoji: "🟣", priority: 200) }
+    @Emoji("🟣") case todo = 200
+    @Emoji("🔵") case verbose = 300
+    @Emoji("🟡") case warning = 700
 
 }
 
@@ -146,6 +147,6 @@ func log(_ error: Error?, category: LogCategory = .uncategorized) {
 
 // MARK: - Default Targets
 
-private var defaultTargets: [LogTarget] {
+private var defaultTargets: [any LogTarget<AppLogLevel>] {
     [ConsoleLog(), BackendLog()]
 }

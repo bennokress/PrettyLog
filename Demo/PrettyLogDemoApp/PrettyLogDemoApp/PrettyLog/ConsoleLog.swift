@@ -24,7 +24,7 @@ struct ConsoleLog: LogTarget {
 
     // MARK: - LogTarget Implementation
 
-    func emit(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: AppLogLevel, message: String, category: LogCategory) {
         print("\(prefix(level: level, category: category)) \(message)")
     }
 
@@ -34,7 +34,7 @@ struct ConsoleLog: LogTarget {
         Date.now.formatted(Self.timestampFormat)
     }
 
-    private func prefix(level: LogLevel, category: LogCategory) -> String {
+    private func prefix(level: AppLogLevel, category: LogCategory) -> String {
         "\(currentTimestamp) \(category.name.truncatedOrPadded(to: 20)) \(level.emoji)"
     }
 

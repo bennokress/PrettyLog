@@ -10,10 +10,10 @@ import Testing
 
 class MockLogTarget: LogTarget {
     var canLogSensitiveInformation = true
-    var levelFilter: LogLevelFilter = .all
-    var capturedLogs: [(LogLevel, String, LogCategory)] = []
+    var levelFilter: LogLevelPriorityFilter<AppLogLevel> = .all
+    var capturedLogs: [(AppLogLevel, String, LogCategory)] = []
 
-    func emit(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: AppLogLevel, message: String, category: LogCategory) {
         capturedLogs.append((level, message, category))
     }
 }
@@ -99,7 +99,7 @@ func prettyLogProxyWithoutSensitiveData() {
 @Test
 func prettyLogProxyFilteredByPriority() {
     let mockTarget = MockLogTarget()
-    mockTarget.levelFilter = .fromPriority(of: .warning)
+    mockTarget.levelFilter = .from(.warning)
 
     PrettyLogProxy.log(["This should be filtered"], as: .info, category: .debug, to: [mockTarget])
     PrettyLogProxy.log(["This should pass"], as: .warning, category: .debug, to: [mockTarget])
@@ -110,11 +110,11 @@ func prettyLogProxyFilteredByPriority() {
 
 private struct SendableLogTarget: LogTarget {
     let canLogSensitiveInformation = false
-    func emit(_ level: LogLevel, message: String, category: LogCategory) { }
+    func emit(_ level: AppLogLevel, message: String, category: LogCategory) { }
 }
 
-/// The README suggests keeping targets in a constant of type `[any LogTarget & Sendable]`. This compiles only while such a list can be passed to the proxy.
-private let sendableLogTargets: [any LogTarget & Sendable] = [SendableLogTarget()]
+/// An app can keep its targets in a constant of type `[any LogTarget<AppLogLevel> & Sendable]`. This compiles only while such a list can be passed to the proxy.
+private let sendableLogTargets: [any LogTarget<AppLogLevel> & Sendable] = [SendableLogTarget()]
 
 @Test
 func prettyLogProxyAcceptsSendableTargets() {
@@ -125,7 +125,7 @@ func prettyLogProxyAcceptsSendableTargets() {
 /// An empty target list is how an app switches logging off, for example in its own unit tests. It used to trip an assertion in debug builds.
 @Test
 func prettyLogProxyWithoutTargetsLogsNothingAndDoesNotCrash() {
-    let noTargets: [LogTarget] = []
+    let noTargets: [any LogTarget<AppLogLevel>] = []
 
     PrettyLogProxy.log(["Info"], as: .info, to: noTargets)
 
@@ -155,4 +155,30 @@ func prettyLogProxyStillAcceptsOptionalStrings() {
 
     #expect(mockTarget.capturedLogs.count == 1)
     #expect(mockTarget.capturedLogs[0].1 == "Test - Message - Secret")
+}
+
+/// A target that only needs what every level has, written once and used by apps with different level types.
+private final class GenericLogTarget<Level: LogLevel>: LogTarget {
+
+    let canLogSensitiveInformation = true
+    var capturedStatements: [String] = []
+
+    func emit(_ level: Level, message: String, category: LogCategory) {
+        capturedStatements.append("\(level.emoji) \(message)")
+    }
+
+}
+
+@Test
+func prettyLogProxyWorksWithAGenericTargetForEveryLevelType() {
+    let appTarget = GenericLogTarget<AppLogLevel>()
+    let otherAppTarget = GenericLogTarget<OtherAppLogLevel>()
+    let appTargets: [any LogTarget<AppLogLevel>] = [appTarget]
+    let otherAppTargets: [any LogTarget<OtherAppLogLevel>] = [otherAppTarget]
+
+    PrettyLogProxy.log(["Info"], as: .info, to: appTargets)
+    PrettyLogProxy.log(["High"], as: .high, to: otherAppTargets)
+
+    #expect(appTarget.capturedStatements == ["🟢 Info"])
+    #expect(otherAppTarget.capturedStatements == ["⬆️ High"])
 }

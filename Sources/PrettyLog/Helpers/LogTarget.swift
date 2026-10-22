@@ -6,7 +6,23 @@
 import Foundation
 
 /// The Log Target is a destination for log statements and can be local or remote.
-public protocol LogTarget {
+///
+/// A target names the level type of your app in `emit(_:message:category:)`, and Swift infers `Level` from it. An app keeps its targets in a list of type `[any LogTarget<AppLogLevel>]`.
+/// A target that only needs what every level has, like the emoji and the priority, can stay generic and work with the levels of any app:
+///
+///     struct ConsoleLog<Level: LogLevel>: LogTarget {
+///
+///         let canLogSensitiveInformation = true
+///
+///         func emit(_ level: Level, message: String, category: LogCategory) {
+///             print("\(level.emoji) \(category.name) \(message)")
+///         }
+///
+///     }
+public protocol LogTarget<Level> {
+
+    /// The Log Level type of the app this target logs for.
+    associatedtype Level: LogLevel
 
     /// Whether this target receives the sensitive messages of a log statement.
     ///
@@ -24,17 +40,17 @@ public protocol LogTarget {
     ///   - level: The log level can be used to visually distinguish between severities of the log statements and to filter what to log for this Log Target.
     ///   - message: The message is the main content of the log statement.
     ///   - category: The category is a title of the log statement.
-    func emit(_ level: LogLevel, message: String, category: LogCategory)
+    func emit(_ level: Level, message: String, category: LogCategory)
 
     /// The Log Levels that will be processed by this Log Target. This will default to `.all` if not specified otherwise.
-    var levelFilter: LogLevelFilter { get }
+    var levelFilter: LogLevelPriorityFilter<Level> { get }
 
 }
 
 public extension LogTarget {
 
     // If not specified otherwise a Log Target will log every statement sent to it.
-    var levelFilter: LogLevelFilter { .all }
+    var levelFilter: LogLevelPriorityFilter<Level> { .all }
 
 }
 
@@ -43,7 +59,7 @@ extension LogTarget {
     /// Assembles the statement and passes it to `emit(_:message:category:)`, if the `levelFilter` accepts the level.
     ///
     /// The name differs from `emit(_:message:category:)` on purpose: only this method checks the filter and leaves out sensitive messages, so the two must not be mistaken for each other.
-    func deliver(_ level: LogLevel, statement: LogStatementAssembler, category: LogCategory) {
+    func deliver(_ level: Level, statement: LogStatementAssembler, category: LogCategory) {
         guard levelFilter.contains(level) else { return }
         guard let logStatement = statement.assembleLogStatement(includingSensitiveData: canLogSensitiveInformation) else { return }
         emit(level, message: logStatement, category: category)

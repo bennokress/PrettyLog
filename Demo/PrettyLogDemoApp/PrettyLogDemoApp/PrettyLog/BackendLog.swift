@@ -16,13 +16,13 @@ struct BackendLog: LogTarget {
     let canLogSensitiveInformation = false
 
     /// Only log INFO level and above to reduce server load
-    var levelFilter: LogLevelFilter { .fromPriority(of: .info) }
+    var levelFilter: LogLevelPriorityFilter<AppLogLevel> { .from(.info) }
     
     private let serverURL = URL(string: "https://api.example.com/logs")!
     
     // MARK: - LogTarget Implementation
     
-    func emit(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: AppLogLevel, message: String, category: LogCategory) {
         let logEntry = BackendLogEntry(timestamp: Date(), level: "\(level.emoji) \(level.priority)", category: category.name, message: message, deviceInfo: getDeviceInfo())
         sendToBackend(logEntry)
     }
