@@ -8,34 +8,40 @@ Applies to every 3.x release.
 | --- | --- | --- |
 | swift-tools-version | 5.9 in 2.0.4 | 6.2 (Xcode 26 or later) |
 | Swift language modes | 5 and 6 | 5 and 6 |
-| iOS | 15 | 15 |
-| Mac Catalyst | 15 | 15 |
-| macOS | 12 | 12 |
-| tvOS | 15 | 15 |
+| iOS | 15 | 16 |
+| Mac Catalyst | 15 | 16 |
+| macOS | 12 | 13 |
+| tvOS | 15 | 16 |
 | watchOS | 8 | 9 |
+| Dependencies | none | swift-syntax 604 |
 
 ## Checklist
 
-- [ ] [Use Xcode 26 and raise watchOS to 9](#1-use-xcode-26-and-raise-watchos-to-9)
+- [ ] [Use Xcode 26 and raise the deployment targets](#1-use-xcode-26-and-raise-the-deployment-targets)
 - [ ] [Define your own log targets](#2-define-your-own-log-targets)
-- [ ] [Define your own log levels](#3-define-your-own-log-levels)
+- [ ] [Declare your own log levels as an enum](#3-declare-your-own-log-levels-as-an-enum)
 - [ ] [Define your own log categories](#4-define-your-own-log-categories)
 - [ ] [Define your own log functions](#5-define-your-own-log-functions)
 - [ ] [Pass your targets to every `PrettyLogProxy` call](#6-pass-your-targets-to-every-prettylogproxy-call)
 - [ ] [Log errors and exceptions yourself](#7-log-errors-and-exceptions-yourself)
-- [ ] [Filter levels with `LogLevelFilter`](#8-filter-levels-with-loglevelfilter)
+- [ ] [Filter levels with `LogLevelPriorityFilter`](#8-filter-levels-with-loglevelpriorityfilter)
 - [ ] [Rename `createLog` to `emit` in your targets](#9-rename-createlog-to-emit-in-your-targets)
 - [ ] [Cut or pad category names in your targets](#10-cut-or-pad-category-names-in-your-targets)
 
 ## Breaking changes
 
-### 1. Use Xcode 26 and raise watchOS to 9
+### 1. Use Xcode 26 and raise the deployment targets
 
-**Affects you if** you build with a toolchain older than Swift 6.2, or your app supports watchOS 8.
+**Affects you if** you build with a toolchain older than Swift 6.2, or your app supports iOS 15, Mac Catalyst 15, macOS 12, tvOS 15 or watchOS 8.
 
-**What changed:** The package manifest uses `swift-tools-version: 6.2`, and the minimum watchOS version is 9. Swift 6.2 is the first version that lets an app default to main actor isolation, and the setup in the README relies on `nonisolated` declarations that older toolchains don't fully support.
+**What changed:** The package manifest uses `swift-tools-version: 6.2`, and the minimum versions are iOS 16, Mac Catalyst 16, macOS 13, tvOS 16 and watchOS 9. Swift 6.2 is the first version that lets an app default to main actor isolation, and the setup in the README relies on `nonisolated` declarations that older toolchains don't fully support. The list of targets now names the level type of your app, `[any LogTarget<AppLogLevel>]`, and such a type needs runtime support that starts with these versions. PrettyLog also depends on [swift-syntax](https://github.com/swiftlang/swift-syntax) now, for the macro that declares your log levels (step 3).
 
-**What to do:** Build with Xcode 26 or later, which the App Store requires for uploads anyway. Raise the watchOS deployment target of every target that depends on PrettyLog to 9, or stay on PrettyLog 2.
+**What to do:**
+
+1. Build with Xcode 26 or later, which the App Store requires for uploads anyway.
+2. Raise the deployment target of every target that depends on PrettyLog to at least iOS 16, Mac Catalyst 16, macOS 13, tvOS 16 or watchOS 9, or stay on PrettyLog 2.
+3. The first time Xcode builds PrettyLog 3 in your project, it asks you to trust and enable the macro `PrettyLogMacros`. On a build server where nobody can confirm that, pass `-skipMacroValidation` to `xcodebuild`.
+4. If another package of your app depends on a version of swift-syntax other than 604, the package resolution fails. Update that package, or stay on PrettyLog 2 until it supports 604.
 
 ### 2. Define your own log targets
 
@@ -56,34 +62,39 @@ nonisolated struct ConsoleLog: LogTarget {
 
     var canLogSensitiveInformation: Bool { isDebugApp }
 
-    func emit(_ level: LogLevel, message: String, category: LogCategory) { … }
+    func emit(_ level: AppLogLevel, message: String, category: LogCategory) { … }
 
 }
 ```
 
-### 3. Define your own log levels
+`AppLogLevel` is the enum with your levels from step 3.
+
+### 3. Declare your own log levels as an enum
 
 **Affects you if** you use a log level in any way: through the `PrettyLogProxy` methods `logD`, `logX`, `logV`, `logS`, `logI`, `logP`, `logW`, `logE` or `logK`, as a predefined level such as `.debug`, `.xcode` or `.keyEvent`, or with `.custom(emoji:priority:)`. That is every app that uses PrettyLog.
 
-**What changed:** PrettyLog ships no log levels anymore. `LogLevel` is a struct with an emoji and a priority, and your app defines the levels it uses. The proxy methods that were tied to a predefined level are gone. `PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)` takes the level as an argument. In 2.x each of the three lower levels had two names, `.debug` and `.xcode`, `.verbose` and `.staging`, `.info` and `.production`. They had the same emoji and priority but were not equal, so a target that switched over the level had to handle both. Now each app picks one set of names. Two levels with the same priority are now equal, whatever their emoji.
+**What changed:** PrettyLog ships no log levels anymore. Your app declares the levels it uses as an enum with the macro `@LogLevels`: each case is one level, `@Emoji` gives it its emoji, and the `Int` raw value is its priority. `LogLevel` is now a protocol, and the macro makes your enum conform to it. Levels are ordered by priority, never by the order of the cases. The compiler rejects two levels with the same priority, and a `switch` over your levels needs no `default` branch, so a level you add later doesn't compile until every `switch` handles it.
+
+The proxy methods that were tied to a predefined level are gone. `PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)` takes the level as an argument. In 2.x each of the three lower levels had two names, `.debug` and `.xcode`, `.verbose` and `.staging`, `.info` and `.production`. They had the same emoji and priority but were not equal, so a target that switched over the level had to handle both. Now each app picks one set of names.
 
 **What to do:**
 
-1. Define your levels in an extension on `LogLevel`, as in step 2 of "Setup" in the README. With the values below, filtering and console output stay as they were. Pick one name per row.
+1. Declare your levels as an enum with `@LogLevels`, as in step 1 of "Setup" in the README. With the values below, filtering and console output stay as they were. Pick one name per row. The highest level gets 1000 instead of `Int.max`, because a raw value has to be a literal.
 
-    | 2.x proxy method | 2.x level | 3.x definition |
+    | 2.x proxy method | 2.x level | 3.x case |
     | --- | --- | --- |
-    | `logD`, `logX` | `.debug`, `.xcode` | `LogLevel(emoji: "🟤", priority: 100)` |
-    | `logV`, `logS` | `.verbose`, `.staging` | `LogLevel(emoji: "🔵", priority: 300)` |
-    | `logI`, `logP` | `.info`, `.production` | `LogLevel(emoji: "🟢", priority: 500)` |
-    | `logW` | `.warning` | `LogLevel(emoji: "🟡", priority: 700)` |
-    | `logE` | `.error` | `LogLevel(emoji: "🔴", priority: 900)` |
-    | `logK` | `.keyEvent` | `LogLevel(emoji: "📊", priority: .max)` |
+    | `logD`, `logX` | `.debug`, `.xcode` | `@Emoji("🟤") case debug = 100` |
+    | `logV`, `logS` | `.verbose`, `.staging` | `@Emoji("🔵") case verbose = 300` |
+    | `logI`, `logP` | `.info`, `.production` | `@Emoji("🟢") case info = 500` |
+    | `logW` | `.warning` | `@Emoji("🟡") case warning = 700` |
+    | `logE` | `.error` | `@Emoji("🔴") case error = 900` |
+    | `logK` | `.keyEvent` | `@Emoji("📊") case keyEvent = 1000` |
 
 2. In your logging file, replace every call of one of these proxy methods with `PrettyLogProxy.log(..., as: <level>, ...)`.
-3. Replace `.custom(emoji: e, priority: p)` with `LogLevel(emoji: e, priority: p)`.
-4. A `switch` over the level needs a `default` branch now, because levels are values and not enum cases. Merge branches like `case .debug, .xcode:` into the one name you kept, otherwise the code doesn't compile.
-5. Declare the extension `nonisolated` if your app makes the main actor its default isolation.
+3. Replace each `.custom(emoji: e, priority: p)` with a case of your enum: `@Emoji(e) case todo = p`.
+4. In a `switch` over the level, merge branches like `case .debug, .xcode:` into the one name you kept, and give every custom level its own branch. Remove the `default` branch: it compiles, but it hides a level you add later.
+5. Use the name of your enum wherever the level type appears: in `emit` (step 2), in the list of targets (step 5) and in `levelFilter` (step 8).
+6. Declare the enum `nonisolated` if your app makes the main actor its default isolation.
 
 ```swift
 // Before (2.x)
@@ -101,11 +112,14 @@ case .custom: logger.notice("\(message)")
 }
 
 // After (3.x)
-nonisolated extension LogLevel {
-    static var xcode: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
-    static var error: LogLevel { LogLevel(emoji: "🔴", priority: 900) }
-    static var todo: LogLevel { LogLevel(emoji: "🟣", priority: 200) }
+@LogLevels
+nonisolated enum AppLogLevel: Int {
+
+    @Emoji("🔴") case error = 900
+    @Emoji("🟣") case todo = 200
+    @Emoji("🟤") case xcode = 100
     …
+
 }
 
 PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .xcode, category: category, to: logTargets)
@@ -113,7 +127,8 @@ PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: sep
 switch level {
 case .xcode: logger.debug("\(message)")
 case .error: logger.fault("\(message)")
-default: logger.notice("\(message)")
+case .todo: logger.notice("\(message)")
+…
 }
 ```
 
@@ -176,7 +191,7 @@ nonisolated func logI(_ messages: (any CustomStringConvertible)?..., sensitiveMe
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: logTargets)
 }
 
-nonisolated private var logTargets: [LogTarget] {
+nonisolated private var logTargets: [any LogTarget<AppLogLevel>] {
     [ConsoleLog()]
 }
 
@@ -225,21 +240,21 @@ nonisolated func log(_ error: Error?, category: LogCategory = .uncategorized) {
 
 With this function an `enum NetworkError: Error` thrown as `.notFound` reads `NetworkError - notFound`, or `NetworkError` for a target that may not receive sensitive data. In 2.x it read `localizedDescription (full description)` for every target.
 
-### 8. Filter levels with `LogLevelFilter`
+### 8. Filter levels with `LogLevelPriorityFilter`
 
 **Affects you if** a target of yours implements `logPriorityRange`, or your code uses `.allowAll`, `.allowNone`, `.allowFrom(min:)` or `.allowUntil(max:)`.
 
-**What changed:** `LogTarget.logPriorityRange: ClosedRange<LogLevel>?` is replaced by `LogTarget.levelFilter: LogLevelFilter`. In 2.x, `nil` meant that a target accepts no level, which reads like "no filter". A reversed range like `.warning ... .debug` stopped the app at runtime. `LogLevelFilter` says what it accepts by name, and `.betweenPriority(of:and:)` orders its two levels itself, so a reversed filter can't crash. The filters compare priorities only, and their names say so: a level with the same priority as the given one is accepted too, whatever its emoji. Targets that never implemented `logPriorityRange` keep accepting every level and need no change.
+**What changed:** `LogTarget.logPriorityRange: ClosedRange<LogLevel>?` is replaced by `LogTarget.levelFilter: LogLevelPriorityFilter<AppLogLevel>`, with the enum of your levels from step 3. In 2.x, `nil` meant that a target accepts no level, which reads like "no filter". A reversed range like `.warning ... .debug` stopped the app at runtime. `LogLevelPriorityFilter` says what it accepts by name, and `.between(_:and:)` orders its two levels itself, so a reversed filter can't crash. The filters compare priorities, never the order of your cases. `.only` accepts exactly the levels you give it, and two filters are equal when they accept the same levels. Targets that never implemented `logPriorityRange` keep accepting every level and need no change.
 
 | 2.x | 3.x |
 | --- | --- |
 | `.allowAll` | `.all` |
 | `.allowNone` or `nil` | `.none` |
-| `.allowFrom(min: level)` | `.fromPriority(of: level)` |
-| `.allowUntil(max: level)` | `.untilPriority(of: level)` |
-| `lower ... upper` | `.betweenPriority(of: lower, and: upper)` |
-| `level ... level` | `.onlyPriority(of: level)` |
-| (not possible) | `.onlyPriority(of: level, otherLevel)` |
+| `.allowFrom(min: level)` | `.from(level)` |
+| `.allowUntil(max: level)` | `.until(level)` |
+| `lower ... upper` | `.between(lower, and: upper)` |
+| `level ... level` | `.only(level)` |
+| (not possible) | `.only(level, otherLevel)` |
 
 **What to do:** Rename the property, change its type and use the matching filter.
 
@@ -248,14 +263,14 @@ With this function an `enum NetworkError: Error` thrown as `.notFound` reads `Ne
 var logPriorityRange: ClosedRange<LogLevel>? { .allowFrom(min: .info) }
 
 // After (3.x)
-var levelFilter: LogLevelFilter { .fromPriority(of: .info) }
+var levelFilter: LogLevelPriorityFilter<AppLogLevel> { .from(.info) }
 ```
 
 ### 9. Rename `createLog` to `emit` in your targets
 
 **Affects you if** you have a log target of your own, which every app has, see step 2.
 
-**What changed:** The `LogTarget` requirement `createLog(_:message:category:)` is now `emit(_:message:category:)`. It gives the statement its form and passes it on, but it creates nothing the caller gets back, so the old name was misleading. The parameters are the same. There is no deprecated forward: a target that still implements `createLog` no longer conforms to `LogTarget` and doesn't compile.
+**What changed:** The `LogTarget` requirement `createLog(_:message:category:)` is now `emit(_:message:category:)`. It gives the statement its form and passes it on, but it creates nothing the caller gets back, so the old name was misleading. The parameters are the same, except that the level has the type of your enum from step 3. There is no deprecated forward: a target that still implements `createLog` no longer conforms to `LogTarget` and doesn't compile.
 
 **What to do:** Rename the method in every target.
 
@@ -264,7 +279,7 @@ var levelFilter: LogLevelFilter { .fromPriority(of: .info) }
 func createLog(_ level: LogLevel, message: String, category: LogCategory) { … }
 
 // After (3.x)
-func emit(_ level: LogLevel, message: String, category: LogCategory) { … }
+func emit(_ level: AppLogLevel, message: String, category: LogCategory) { … }
 ```
 
 ### 10. Cut or pad category names in your targets
@@ -295,11 +310,11 @@ nonisolated extension String {
 
 ## New and optional
 
-### `LogLevel` and `LogCategory` are `Sendable`
+### Your levels and `LogCategory` are `Sendable`
 
-You can now keep levels and categories in a `static let` or pass them into a `Task` in the Swift 6 language mode, including the levels and categories your app defines. Nothing to change.
+You can now keep levels and categories in a `static let` or pass them into a `Task` in the Swift 6 language mode. `LogLevel` requires `Sendable`, so your level enum gets it, and so do the categories your app defines. Nothing to change.
 
-`LogTarget` still doesn't require `Sendable`, so your existing targets keep compiling. If you want to keep your targets in a `static let` or hand them across isolation boundaries, make your target types `Sendable` yourself, see "Keeping Targets in a Constant" in the README.
+`LogTarget` still doesn't require `Sendable`, so your existing targets keep compiling. If you want to keep your targets in a `static let` or hand them across isolation boundaries, make your target types `Sendable` yourself and declare the list as `[any LogTarget<AppLogLevel> & Sendable]`, see "Keeping Targets in a Constant" in the README.
 
 ### Messages can be any `CustomStringConvertible`
 
