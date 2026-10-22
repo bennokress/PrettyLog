@@ -1,9 +1,6 @@
 import PrettyLog
 import Testing
-@testable import V0App
-@testable import V1App
 @testable import V2App
-@testable import V3App
 
 // The same checks for every variant: emoji, priority, order by priority, and the filters.
 nonisolated func check<Level: LogLevel>(debug: Level, verbose: Level, info: Level, warning: Level, error: Level, keyEvent: Level) {
@@ -18,7 +15,9 @@ nonisolated func check<Level: LogLevel>(debug: Level, verbose: Level, info: Leve
     #expect(LogLevelPriorityFilter<Level>.none == .only())
 }
 
-@Test func v0() { check(debug: V0App.AppLogLevel.debug, verbose: .verbose, info: .info, warning: .warning, error: .error, keyEvent: .keyEvent) }
-@Test func v1() { check(debug: V1App.AppLogLevel.debug, verbose: .verbose, info: .info, warning: .warning, error: .error, keyEvent: .keyEvent) }
 @Test func v2() { check(debug: V2App.AppLogLevel.debug, verbose: .verbose, info: .info, warning: .warning, error: .error, keyEvent: .keyEvent) }
-@Test func v3() { check(debug: V3App.AppLogLevel.debug, verbose: .verbose, info: .info, warning: .warning, error: .error, keyEvent: .keyEvent) }
+
+@Test func v2PriorityIsTheRawValue() {
+    #expect(V2App.AppLogLevel.keyEvent.priority == 1000)
+    #expect(V2App.AppLogLevel(rawValue: 500) == .info)
+}

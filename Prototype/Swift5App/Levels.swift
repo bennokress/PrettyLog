@@ -1,14 +1,14 @@
 import PrettyLog
 
-// V3: macro without raw value. The macro adds emoji, priority and allCases, and checks the priorities itself.
+// V2: macro plus Int raw value. The compiler checks the priorities, the macro adds emoji and allCases.
 @LogLevels
-nonisolated enum AppLogLevel {
+nonisolated enum AppLogLevel: Int {
 
-    @Level("🟤", priority: 100) case debug
-    @Level("🔴", priority: 900) case error
-    @Level("🟢", priority: 500) case info
-    @Level("📊", priority: 1000) case keyEvent
-    @Level("🔵", priority: 300) case verbose
-    @Level("🟡", priority: 700) case warning
+    @Emoji("🟤") case debug = 100
+    @Emoji("🔴") case error = 900
+    @Emoji("🟢") case info = 500
+    @Emoji("📊") case keyEvent = 1000
+    @Emoji("🔵") case verbose = 300
+    @Emoji("🟡") case warning = 700
 
 }
