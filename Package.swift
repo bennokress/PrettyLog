@@ -1,56 +1,36 @@
 // swift-tools-version: 6.2
 
+// PROTOTYPE (#73): throwaway, never merged. Compares four ways for an app to define its log levels.
+
+import CompilerPluginSupport
 import PackageDescription
 
-let packageName = "PrettyLog"
-let displayName = packageName
-let dependencies: [Dependency] = []
-
-let platforms: [SupportedPlatform] = [
-    .iOS(.v15),
-    .macCatalyst(.v15),
-    .macOS(.v12),
-    .tvOS(.v15),
-    .watchOS(.v9)
+let mainActorApp: [SwiftSetting] = [
+    .defaultIsolation(MainActor.self),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
-let module: Product = .library(name: packageName, targets: [packageName])
-let mainTarget: Target = .target(name: packageName, dependencies: dependencies.target)
-let testTarget: Target = .testTarget(name: packageName + "Tests", dependencies: [.target(name: packageName)])
-
 let package = Package(
-    name: displayName,
-    platforms: platforms,
-    products: [module],
-    dependencies: dependencies.package,
-    targets: [mainTarget, testTarget],
+    name: "PrettyLog",
+    platforms: [.iOS(.v16), .macCatalyst(.v16), .macOS(.v13), .tvOS(.v16), .watchOS(.v9)],
+    products: [
+        .library(name: "PrettyLog", targets: ["PrettyLog"]),
+        .library(name: "PrototypeApps", targets: ["V0App", "V1App", "V2App", "V3App", "Swift5App"]),
+    ],
+    dependencies: [.package(url: "https://github.com/swiftlang/swift-syntax", from: "604.0.0")],
+    targets: [
+        .macro(name: "PrettyLogMacros", dependencies: [
+            .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+            .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+        ]),
+        .target(name: "PrettyLog", dependencies: ["PrettyLogMacros"]),
+        .target(name: "V0App", dependencies: ["PrettyLog"], path: "Prototype/V0App", swiftSettings: mainActorApp),
+        .target(name: "V1App", dependencies: ["PrettyLog"], path: "Prototype/V1App", swiftSettings: mainActorApp),
+        .target(name: "V2App", dependencies: ["PrettyLog"], path: "Prototype/V2App", swiftSettings: mainActorApp),
+        .target(name: "V3App", dependencies: ["PrettyLog"], path: "Prototype/V3App", swiftSettings: mainActorApp),
+        .target(name: "Swift5App", dependencies: ["PrettyLog"], path: "Prototype/Swift5App", swiftSettings: [.swiftLanguageMode(.v5)]),
+        .testTarget(name: "PrototypeTests", dependencies: ["V0App", "V1App", "V2App", "V3App", "PrettyLog"], path: "Prototype/Tests", swiftSettings: mainActorApp),
+    ],
     swiftLanguageModes: [.v6, .v5]
 )
-
-// MARK: - Helpers
-
-protocol Dependency {
-
-    /// This can be used to include a dependency from the target dependencies. Default is `true`.
-    var isIncludedInTarget: Bool { get }
-    var targetDependency: Target.Dependency { get }
-
-    /// This can be used to include a dependency from the package dependencies. Default is `true`.
-    var isIncludedInPackage: Bool { get }
-    var packageDependency: Package.Dependency { get }
-
-}
-
-extension Dependency {
-
-    var isIncludedInTarget: Bool { true }
-    var isIncludedInPackage: Bool { true }
-
-}
-
-extension Array where Element == Dependency {
-
-    var target: [Target.Dependency] { filter(\.isIncludedInTarget).map(\.targetDependency) }
-    var package: [Package.Dependency] { filter(\.isIncludedInPackage).map(\.packageDependency) }
-
-}

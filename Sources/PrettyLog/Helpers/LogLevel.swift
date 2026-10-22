@@ -3,55 +3,53 @@
 // 👨🏼‍💻 Author: Benno Kress
 //
 
+// PROTOTYPE (#73): the protocol only asks for an emoji, a priority and all cases. How an app fills them in is what the
+// variants in Prototype/ compare. The constrained extensions below are the package support for variants V0 and V1.
+
 import Foundation
 
-/// The Log Level can be used to filter log statements before they are sent to a Log Target. It also carries an emoji as a way to visually distinguish the severity of each log statement.
-///
-/// PrettyLog ships no Log Levels. Your app defines the ones it needs as an extension on `LogLevel` and passes them to `PrettyLogProxy.log(_:sensitiveMessages:joinedBy:as:category:to:)`.
-/// The package gives a level no meaning of its own: targets only compare priorities to decide what they log, so it is up to your app what "debug" or "production" means.
-///
-///     nonisolated extension LogLevel {
-///
-///         static var debug: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
-///         static var info: LogLevel { LogLevel(emoji: "🟢", priority: 500) }
-///         static var error: LogLevel { LogLevel(emoji: "🔴", priority: 900) }
-///
-///     }
-///
-/// A target can tell levels apart with `==` or `switch`. Because the levels are values and not enum cases, a `switch` needs a `default` branch.
-///
-/// - Attention: The level should always be represented by emoji in order to keep the visual design of the log statements consistent, although other characters could be used.
-public struct LogLevel: Sendable {
+public protocol LogLevel: CaseIterable, Comparable, Hashable, Sendable {
 
-    /// The emoji can be used as a quickly glanceable representation of the Log Level in log statements.
-    public var emoji: String { String(emojiCharacter) }
-
-    /// The priority can be used to determine which log statement should be sent to a specific target.
-    /// - Attention: The priority identifies the level: two levels with the same priority are equal, whatever their emoji. Give every level of your app its own priority.
-    public let priority: Int
-
-    private let emojiCharacter: Character
-
-    /// Creates a Log Level.
-    /// - Parameters:
-    ///   - emoji: The emoji shown in log statements of this level
-    ///   - priority: The priority targets use to filter log statements; higher means more important
-    public init(emoji: Character, priority: Int) {
-        self.emojiCharacter = emoji
-        self.priority = priority
-    }
+    var emoji: String { get }
+    var priority: Int { get }
 
 }
 
-extension LogLevel: Comparable {
+public extension LogLevel {
 
-    // Equality follows the same key as the order, otherwise two levels with the same priority and different emoji would be neither equal nor ordered, which breaks `Comparable`.
-    public static func == (lhs: LogLevel, rhs: LogLevel) -> Bool {
-        lhs.priority == rhs.priority
-    }
+    /// Levels are ordered by priority, never by the order of their declaration.
+    static func < (lhs: Self, rhs: Self) -> Bool { lhs.priority < rhs.priority }
 
-    public static func < (lhs: LogLevel, rhs: LogLevel) -> Bool {
-        lhs.priority < rhs.priority
+}
+
+// V0 and V2: the `Int` raw value is the priority, so the compiler rejects two levels with the same priority.
+public extension LogLevel where Self: RawRepresentable, RawValue == Int {
+
+    var priority: Int { rawValue }
+
+}
+
+// V1: the raw value is a text like "🟤 100", parsed into emoji and priority.
+public extension LogLevel where Self: RawRepresentable, RawValue == LogLevelSpec {
+
+    var emoji: String { rawValue.emoji }
+    var priority: Int { rawValue.priority }
+
+}
+
+/// V1: a raw value written as a string literal, emoji and priority separated by a space: `case debug = "🟤 100"`.
+public struct LogLevelSpec: Hashable, Sendable, ExpressibleByStringLiteral {
+
+    public let emoji: String
+    public let priority: Int
+
+    public init(stringLiteral value: String) {
+        let parts = value.split(separator: " ", omittingEmptySubsequences: true)
+        guard parts.count == 2, let priority = Int(parts[1]) else {
+            preconditionFailure("A log level is written as \"<emoji> <priority>\", got \"\(value)\".")
+        }
+        self.emoji = String(parts[0])
+        self.priority = priority
     }
 
 }
