@@ -8,17 +8,18 @@ import PrettyLog
 
 // MARK: - Log Levels
 
-extension LogLevel {
+/// The raw value of each case is its priority, so the cases can be sorted alphabetically.
+@LogLevels
+enum AppLogLevel: Int {
 
-    static var debug: LogLevel { LogLevel(emoji: "🟤", priority: 100) }
-    static var verbose: LogLevel { LogLevel(emoji: "🔵", priority: 300) }
-    static var info: LogLevel { LogLevel(emoji: "🟢", priority: 500) }
-    static var warning: LogLevel { LogLevel(emoji: "🟡", priority: 700) }
-    static var error: LogLevel { LogLevel(emoji: "🔴", priority: 900) }
-    static var keyEvent: LogLevel { LogLevel(emoji: "📊", priority: .max) }
-
+    @Emoji("🟤") case debug = 100
+    @Emoji("🔴") case error = 900
+    @Emoji("🟢") case info = 500
+    @Emoji("📊") case keyEvent = 1000
     /// This custom level can be used for TODO items
-    static var todo: LogLevel { LogLevel(emoji: "🟣", priority: 200) }
+    @Emoji("🟣") case todo = 200
+    @Emoji("🔵") case verbose = 300
+    @Emoji("🟡") case warning = 700
 
 }
 
@@ -45,10 +46,10 @@ extension LogCategory {
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logX(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .debug, category: category, to: defaultTargets)
 }
 
@@ -56,10 +57,10 @@ func logX(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logV(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: defaultTargets)
 }
 
@@ -67,10 +68,10 @@ func logV(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logS(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logS(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .verbose, category: category, to: defaultTargets)
 }
 
@@ -78,10 +79,10 @@ func logS(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logP(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logP(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .info, category: category, to: defaultTargets)
 }
 
@@ -89,10 +90,10 @@ func logP(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logW(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .warning, category: category, to: defaultTargets)
 }
 
@@ -100,10 +101,10 @@ func logW(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logE(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .error, category: category, to: defaultTargets)
 }
 
@@ -113,7 +114,7 @@ func logE(_ messages: String?..., sensitiveMessages: String?..., joinedBy separa
 ///   - separator: The separator between messages (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` is empty or consist only of `nil`-elements!
-func logK(_ messages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logK(_ messages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, joinedBy: separator, as: .keyEvent, category: category, to: defaultTargets)
 }
 
@@ -121,33 +122,31 @@ func logK(_ messages: String?..., joinedBy separator: String = " - ", category: 
 /// - Parameters:
 ///   - messages: One or more strings and string-convertible objects to include in the log statement
 ///   - sensitiveMessages: One or more strings and string-convertible objects to include in the log statement if the target allows sensitive content
-///   - separator: The separator between messages (defaults to `" - "`)
+///   - separator: The separator between messages, also used between the public and the sensitive part (defaults to `" - "`)
 ///   - category: The category of the log message (defaults to `.uncategorized`)
 /// - Attention: No log will be created, if `messages` and `sensitiveMessages` are both empty or consist only of `nil`-elements!
-func logT(_ messages: String?..., sensitiveMessages: String?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
+func logT(_ messages: (any CustomStringConvertible)?..., sensitiveMessages: (any CustomStringConvertible)?..., joinedBy separator: String = " - ", category: LogCategory = .uncategorized) {
     PrettyLogProxy.log(messages, sensitiveMessages: sensitiveMessages, joinedBy: separator, as: .todo, category: category, to: defaultTargets)
 }
 
-/// Log an `Error`
+/// Log an `Error`.
+///
+/// The public part is the `localizedDescription` of a `LocalizedError` or an `NSError`, and the name of the type for any other error,
+/// because Foundation would only produce "The operation couldn't be completed." for it. The full description goes into the sensitive part,
+/// because it can contain the `userInfo` of an `NSError`, a complete URL or the associated values of an error enum.
 /// - Parameters:
 ///   - error: The error to log
 ///   - category: The category of the log message (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `error` is `nil`
+/// - Attention: No log will be created, if `error` is `nil`.
 func log(_ error: Error?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(error, as: .error, category: category, to: defaultTargets)
-}
-
-/// Log a `NSException`
-/// - Parameters:
-///   - exception: The exception to log
-///   - category: The category of the log statement (defaults to `.uncategorized`)
-/// - Attention: No log will be created, if `exception` is `nil`
-func log(_ exception: NSException?, category: LogCategory = .uncategorized) {
-    PrettyLogProxy.log(exception, as: .error, category: category, to: defaultTargets)
+    guard let error else { return }
+    let isReadable = error is LocalizedError || type(of: error) is NSError.Type
+    let publicPart = isReadable ? error.localizedDescription : String(describing: type(of: error))
+    PrettyLogProxy.log([publicPart], sensitiveMessages: ["\(error)"], as: .error, category: category, to: defaultTargets)
 }
 
 // MARK: - Default Targets
 
-private var defaultTargets: [LogTarget] {
+private var defaultTargets: [any LogTarget<AppLogLevel>] {
     [ConsoleLog(), BackendLog()]
 }

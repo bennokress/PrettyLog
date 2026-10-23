@@ -24,7 +24,7 @@ struct ConsoleLog: LogTarget {
 
     // MARK: - LogTarget Implementation
 
-    func createLog(_ level: LogLevel, message: String, category: LogCategory) {
+    func emit(_ level: AppLogLevel, message: String, category: LogCategory) {
         print("\(prefix(level: level, category: category)) \(message)")
     }
 
@@ -34,8 +34,22 @@ struct ConsoleLog: LogTarget {
         Date.now.formatted(Self.timestampFormat)
     }
 
-    private func prefix(level: LogLevel, category: LogCategory) -> String {
-        "\(currentTimestamp) \(category.truncatedOrPadded(to: 20)) \(level.emoji)"
+    private func prefix(level: AppLogLevel, category: LogCategory) -> String {
+        "\(currentTimestamp) \(category.name.truncatedOrPadded(to: 20)) \(level.emoji)"
+    }
+
+}
+
+// MARK: - Fixed Width
+
+extension String {
+
+    /// The String cut or padded to exactly the given length, so the categories of all log statements line up.
+    /// A longer String ends in "…", a shorter one is padded with spaces at the beginning.
+    func truncatedOrPadded(to length: Int) -> String {
+        guard length > 0 else { return "" }
+        guard count <= length else { return String(prefix(length - 1)) + "…" }
+        return String(repeating: " ", count: length - count) + self
     }
 
 }

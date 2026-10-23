@@ -45,58 +45,6 @@ func stringCombiningMixedEmptyAndNil() {
 }
 
 @Test
-func stringTruncateOrPadExactLength() {
-    let text = "Hello"
-    let result = text.truncateOrPad(to: 5)
-    #expect(result == "Hello")
-    #expect(result.count == 5)
-}
-
-@Test
-func stringTruncateOrPadShorter() {
-    let text = "Hi"
-    let result = text.truncateOrPad(to: 5)
-    #expect(result == "   Hi")
-    #expect(result.count == 5)
-}
-
-@Test
-func stringTruncateOrPadLonger() {
-    let text = "This is a long string"
-    let result = text.truncateOrPad(to: 10)
-    #expect(result == "This is a…")
-    #expect(result.count == 10)
-}
-
-@Test
-func stringTruncateOrPadCustomCharacter() {
-    let text = "Hi"
-    let result = text.truncateOrPad(to: 5, using: "*")
-    #expect(result == "***Hi")
-    #expect(result.count == 5)
-}
-
-@Test
-func stringTruncateOrPadVeryShort() {
-    let text = "Hello World"
-    let result = text.truncateOrPad(to: 1)
-    #expect(result == "…")
-    #expect(result.count == 1)
-}
-
-@Test
-func stringTruncateOrPadZeroLength() {
-    #expect("Hello".truncateOrPad(to: 0) == "")
-    #expect("".truncateOrPad(to: 0) == "")
-}
-
-@Test
-func stringTruncateOrPadNegativeLength() {
-    #expect("Hello".truncateOrPad(to: -3) == "")
-    #expect("".truncateOrPad(to: -3) == "")
-}
-
-@Test
 func stringProtocolReplacedWithNilIfEmpty() {
     #expect("Hello".replacedWithNilIfEmpty == "Hello")
     #expect("".replacedWithNilIfEmpty == nil)
